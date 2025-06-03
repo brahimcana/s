@@ -3,7 +3,7 @@
 // ----------------------------------------------
 const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
 
-// Helper : afficher une alerte
+// Affichage de messages
 function showAlert(type, message, containerId) {
   const container = document.getElementById(containerId);
   if (!container) return;
@@ -16,52 +16,40 @@ function showAlert(type, message, containerId) {
   setTimeout(() => { container.innerHTML = ""; }, 4000);
 }
 
-// Helper : utilisateur connecté
 function getCurrentUser() {
   return JSON.parse(localStorage.getItem("currentUser") || "null");
 }
 
-// Mise à jour nav
 function updateNav() {
   const user = getCurrentUser();
-  const navLogin = document.getElementById("nav-login");
-  const navRegister = document.getElementById("nav-register");
-  const navDashClient = document.getElementById("nav-dashboard-client");
-  const navDashDriver = document.getElementById("nav-dashboard-driver");
-  const btnLogout = document.getElementById("btn-logout");
-
-  if (user) {
-    navLogin?.classList.add("hidden");
-    navRegister?.classList.add("hidden");
-    if (user.role === "client") navDashClient?.classList.remove("hidden");
-    if (user.role === "driver") navDashDriver?.classList.remove("hidden");
-    btnLogout?.classList.remove("hidden");
-    btnLogout?.addEventListener("click", () => {
+  document.getElementById("nav-login")?.classList.toggle("hidden", !!user);
+  document.getElementById("nav-register")?.classList.toggle("hidden", !!user);
+  document.getElementById("nav-dashboard-client")?.classList.toggle("hidden", !(user && user.role === "client"));
+  document.getElementById("nav-dashboard-driver")?.classList.toggle("hidden", !(user && user.role === "driver"));
+  const logoutBtn = document.getElementById("btn-logout");
+  if (logoutBtn) {
+    logoutBtn.classList.toggle("hidden", !user);
+    logoutBtn.onclick = () => {
       localStorage.clear();
       window.location.href = "index.html";
-    });
-  } else {
-    navLogin?.classList.remove("hidden");
-    navRegister?.classList.remove("hidden");
-    navDashClient?.classList.add("hidden");
-    navDashDriver?.classList.add("hidden");
-    btnLogout?.classList.add("hidden");
+    };
   }
 }
+
 document.addEventListener("DOMContentLoaded", updateNav);
 
-// Requête POST
-async function apiPost(path, body = {}) {
+// Appel POST générique
+async function apiPost(path, data = {}) {
   try {
-    const res = await fetch(API_URL + `?path=${path}`, {
+    const res = await fetch(`${API_URL}?path=${path}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: JSON.stringify(data)
     });
     return await res.json();
-  } catch (err) {
-    console.error("Erreur API:", err);
-    return { success: false, message: "Erreur réseau" };
+  } catch (e) {
+    console.error("Erreur API", e);
+    return { success: false, message: "Erreur réseau ou serveur." };
   }
 }
 
@@ -69,70 +57,52 @@ async function apiPost(path, body = {}) {
 // 2. PAGE login.html
 // ----------------------------------------------
 if (window.location.pathname.includes("login.html")) {
-  document.getElementById("login-form").addEventListener("submit", async e => {
+  document.getElementById("login-form")?.addEventListener("submit", async e => {
     e.preventDefault();
     const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value.trim();
-
-    if (!email || !password) {
-      showAlert("error", "Veuillez remplir tous les champs.", "alert-container");
-      return;
-    }
+    if (!email || !password) return showAlert("error", "Champs requis.", "alert-container");
 
     const res = await apiPost("loginUser", { email, password });
     if (res.success) {
       localStorage.setItem("currentUser", JSON.stringify({ email, role: res.role }));
-      showAlert("success", "Connexion réussie !", "alert-container");
+      showAlert("success", "Connexion réussie", "alert-container");
       setTimeout(() => {
         window.location.href = res.role === "client" ? "dashboard-client.html" : "dashboard-driver.html";
       }, 1000);
     } else {
-      showAlert("error", res.message || "Erreur de connexion.", "alert-container");
+      showAlert("error", res.message, "alert-container");
     }
   });
 }
 
 // ----------------------------------------------
-// 3. PAGE register.html (déjà géré par HTML avec redirection vers profile-client/driver.html)
-// ----------------------------------------------
-
-// ----------------------------------------------
-// 4. PAGE profile-client.html
+// 3. PAGE profile-client.html
 // ----------------------------------------------
 if (window.location.pathname.includes("profile-client.html")) {
   const email = localStorage.getItem("temp_email");
   const password = localStorage.getItem("temp_password");
   const role = localStorage.getItem("temp_role");
+  if (!email || !password || role !== "client") window.location.href = "register.html";
 
-  if (!email || !password || role !== "client") {
-    window.location.href = "register.html";
-  }
-
-  document.getElementById("profile-client-form").addEventListener("submit", async e => {
+  document.getElementById("profile-client-form")?.addEventListener("submit", async e => {
     e.preventDefault();
-    const fullName = document.getElementById("client-name").value.trim();
+    const name = document.getElementById("client-name").value.trim();
     const phone = document.getElementById("client-phone").value.trim();
     const address = document.getElementById("client-address").value.trim();
+    if (!name || !phone || !address) return showAlert("error", "Champs requis.", "alert-container");
 
-    if (!fullName || !phone || !address) {
-      showAlert("error", "Veuillez remplir tous les champs.", "alert-container");
-      return;
-    }
+    const regRes = await apiPost("registerUser", { name, email, password, role, phone });
+    if (!regRes.success) return showAlert("error", regRes.message, "alert-container");
 
-    const regRes = await apiPost("registerUser", { name: fullName, email, password, role, phone });
-    if (!regRes.success) {
-      showAlert("error", regRes.message, "alert-container");
-      return;
-    }
-
-    const profRes = await apiPost("completeProfile", { email, role, fullName, phone, address });
+    const profRes = await apiPost("completeProfile", { email, role, fullName: name, phone, address });
     if (profRes.success) {
       localStorage.setItem("currentUser", JSON.stringify({ email, role }));
       localStorage.removeItem("temp_email");
       localStorage.removeItem("temp_password");
       localStorage.removeItem("temp_role");
-      showAlert("success", "Profil enregistré !", "alert-container");
-      setTimeout(() => window.location.href = "dashboard-client.html", 800);
+      showAlert("success", "Profil enregistré", "alert-container");
+      setTimeout(() => window.location.href = "dashboard-client.html", 1000);
     } else {
       showAlert("error", profRes.message, "alert-container");
     }
@@ -140,46 +110,34 @@ if (window.location.pathname.includes("profile-client.html")) {
 }
 
 // ----------------------------------------------
-// 5. PAGE profile-driver.html
+// 4. PAGE profile-driver.html
 // ----------------------------------------------
 if (window.location.pathname.includes("profile-driver.html")) {
   const email = localStorage.getItem("temp_email");
   const password = localStorage.getItem("temp_password");
   const role = localStorage.getItem("temp_role");
+  if (!email || !password || role !== "driver") window.location.href = "register.html";
 
-  if (!email || !password || role !== "driver") {
-    window.location.href = "register.html";
-  }
-
-  document.getElementById("profile-driver-form").addEventListener("submit", async e => {
+  document.getElementById("profile-driver-form")?.addEventListener("submit", async e => {
     e.preventDefault();
-    const fullName = document.getElementById("driver-name").value.trim();
+    const name = document.getElementById("driver-name").value.trim();
     const phone = document.getElementById("driver-phone").value.trim();
-    const licenseNumber = document.getElementById("driver-license").value.trim();
-    const vehicleType = document.getElementById("driver-vehicle").value.trim();
-    const plateNumber = document.getElementById("driver-plate").value.trim();
+    const license = document.getElementById("driver-license").value.trim();
+    const vehicle = document.getElementById("driver-vehicle").value;
+    const plate = document.getElementById("driver-plate").value.trim();
+    if (!name || !phone || !license || !vehicle || !plate) return showAlert("error", "Champs requis.", "alert-container");
 
-    if (!fullName || !phone || !licenseNumber || !vehicleType || !plateNumber) {
-      showAlert("error", "Tous les champs sont obligatoires.", "alert-container");
-      return;
-    }
+    const regRes = await apiPost("registerUser", { name, email, password, role, phone });
+    if (!regRes.success) return showAlert("error", regRes.message, "alert-container");
 
-    const regRes = await apiPost("registerUser", { name: fullName, email, password, role, phone });
-    if (!regRes.success) {
-      showAlert("error", regRes.message, "alert-container");
-      return;
-    }
-
-    const profRes = await apiPost("completeProfile", {
-      email, role, fullName, phone, licenseNumber, vehicleType, plateNumber
-    });
+    const profRes = await apiPost("completeProfile", { email, role, fullName: name, phone, licenseNumber: license, vehicleType: vehicle, plateNumber: plate });
     if (profRes.success) {
       localStorage.setItem("currentUser", JSON.stringify({ email, role }));
       localStorage.removeItem("temp_email");
       localStorage.removeItem("temp_password");
       localStorage.removeItem("temp_role");
-      showAlert("success", "Profil livreur enregistré !", "alert-container");
-      setTimeout(() => window.location.href = "dashboard-driver.html", 800);
+      showAlert("success", "Profil enregistré", "alert-container");
+      setTimeout(() => window.location.href = "dashboard-driver.html", 1000);
     } else {
       showAlert("error", profRes.message, "alert-container");
     }
