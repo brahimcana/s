@@ -2,58 +2,49 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <title>Test API Google Script</title>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    input, button { padding: 8px; margin: 5px 0; width: 100%; max-width: 300px; }
-    .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
-  </style>
+  <title>Test Google Apps Script</title>
 </head>
 <body>
+  <h2>Tester l'envoi de données vers Google Apps Script</h2>
 
-  <h2>Test de Connexion à Google Apps Script</h2>
+  <label for="nom">Nom :</label>
+  <input type="text" id="nom" placeholder="Votre nom"><br><br>
 
-  <label>Email :</label>
-  <input type="email" id="email" placeholder="email@test.com">
+  <label for="email">Email :</label>
+  <input type="email" id="email" placeholder="Votre email"><br><br>
 
-  <label>Mot de passe :</label>
-  <input type="password" id="password" placeholder="••••••••">
+  <button onclick="envoyer()">Envoyer</button>
 
-  <button onclick="sendTest()">Envoyer</button>
-
-  <div class="result" id="resultBox">Résultat ici...</div>
+  <p id="resultat" style="margin-top:20px;color:blue;"></p>
 
   <script>
-    async function sendTest() {
+    async function envoyer() {
+      const nom = document.getElementById('nom').value;
       const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const resultBox = document.getElementById('resultBox');
 
-      const url = 'https://script.google.com/macros/s/AKfycbzX0KHJwAxZwX2qKKLFolqhARNF5BDuLRQSzlM3oYkG9-EoV_83oLkov2Vr5QhGKrvv/exec'; // ضع هنا رابط Google Script Web App
-      const body = {
-        action: 'login',  // أو 'register' أو 'createOrder' حسب ما تريد تجربته
-        data: {
-          email: email,
-          password: password
-        }
+      const data = {
+        name: nom,
+        email: email
       };
 
-      resultBox.innerHTML = '⏳ Envoi...';
+      const url = 'https://script.google.com/macros/s/AKfycby6nf5TS8E_WnZ2H4Nwu9vLKjXq9M7NP1gYdQSVUA5gT3vFxM2vw66kjc-lfSilDk2v/exec';
 
       try {
-        const res = await fetch(url, {
+        const res = await fetch(url + '?path=createUser', {
           method: 'POST',
-          body: JSON.stringify(body),
-          headers: { 'Content-Type': 'application/json' }
+          body: JSON.stringify(data),
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
 
-        const json = await res.json();
-        resultBox.innerHTML = `<pre>${JSON.stringify(json, null, 2)}</pre>`;
+        const result = await res.json();
+        document.getElementById('resultat').textContent = '✅ Succès : ' + JSON.stringify(result);
+
       } catch (error) {
-        resultBox.innerHTML = `<b style="color: red;">Erreur :</b> ${error.message}`;
+        document.getElementById('resultat').textContent = '❌ Erreur : ' + error.message;
       }
     }
   </script>
-
 </body>
 </html>
