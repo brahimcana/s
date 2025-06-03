@@ -2,195 +2,108 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Client</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Client – Coursier Prioritaire</title>
   <style>
     body {
+      background-color: #f1f1f1;
       font-family: Arial, sans-serif;
-      background-color: #f3f4f6;
       margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
     }
     nav {
-      background-color: #fff;
-      padding: 12px 16px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background-color: #2980b9;
+      color: white;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    nav a {
+    nav a, nav button {
+      color: white;
       text-decoration: none;
-      color: #2980b9;
-      font-size: 18px;
       font-weight: bold;
-    }
-    .logout-btn {
       background: none;
       border: none;
-      color: #e74c3c;
-      font-size: 16px;
       cursor: pointer;
+      font-size: 16px;
     }
     main {
-      flex: 1;
-      padding: 16px;
+      padding: 20px;
+    }
+    .section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      padding: 20px;
     }
     h2 {
       margin-top: 0;
       color: #333;
     }
+    /* تنسيق الجدول */
     table {
       width: 100%;
       border-collapse: collapse;
+      font-size: 14px;
       margin-top: 12px;
     }
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
-      text-align: left;
+      text-align: center;
     }
     th {
       background-color: #2980b9;
       color: white;
     }
     tr:nth-child(even) {
-      background-color: #f9fafb;
+      background-color: #f9f9f9;
     }
-    .btn {
-      background-color: #2980b9;
+    /* أزرار وألوان */
+    .btn-calc {
+      width: 100%;
+      padding: 10px;
+      background-color: #f39c12;
       color: white;
       border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .btn-calc:hover {
+      background-color: #d78c0c;
+    }
+    .btn-create {
+      width: 100%;
+      padding: 10px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 8px;
+    }
+    .btn-create:hover {
+      background-color: #219654;
+    }
+    .txt-link {
+      color: #2980b9;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .txt-link:hover {
+      text-decoration: underline;
+    }
+    .btn-cancel {
+      background: none;
+      border: none;
+      color: #c0392b;
       cursor: pointer;
       font-size: 14px;
     }
-    .btn:hover {
-      background-color: #1c5980;
+    .btn-cancel:hover {
+      text-decoration: underline;
     }
-    .alert {
-      margin-top: 12px;
-      padding: 8px;
-      border-radius: 6px;
-      font-size: 14px;
-    }
-    .alert.red {
-      background-color: #fdecea;
-      color: #e74c3c;
-      border: 1px solid #e74c3c;
-    }
-    .alert.green {
-      background-color: #e8f8f5;
-      color: #16a085;
-      border: 1px solid #16a085;
-    }
-    /* Responsive */
-    @media (max-width: 600px) {
-      th, td {
-        font-size: 12px;
-        padding: 6px;
-      }
-      .btn {
-        font-size: 12px;
-        padding: 6px 10px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <nav>
-    <a href="index.html">Coursier Prioritaire</a>
-    <button class="logout-btn" id="logoutBtn">Déconnexion</button>
-  </nav>
-
-  <main>
-    <h2>Mes commandes</h2>
-    <div id="alert-msg"></div>
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Type</th>
-          <th>Statut</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id="ordersTable">
-        <!-- ستُعبَّأ هنا الديناميكي -->
-      </tbody>
-    </table>
-  </main>
-
-  <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
-    const logoutBtn = document.getElementById('logoutBtn');
-    const alertMsg = document.getElementById('alert-msg');
-    const ordersTable = document.getElementById('ordersTable');
-
-    // تأكد وجود المستخدم وكونه عميل
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || "null");
-    if (!currentUser || currentUser.role !== 'client') {
-      window.location.href = 'login.html';
-    }
-    const userEmail = currentUser.email;
-    const userToken = currentUser.token;
-
-    // زرّ تسجيل الخروج
-    logoutBtn.addEventListener('click', () => {
-      localStorage.clear();
-      window.location.href = 'login.html';
-    });
-
-    // دالة لجلب طلبات العميل وعرضها
-    async function loadOrders() {
-      alertMsg.textContent = '';
-      ordersTable.innerHTML = '';
-
-      const formData = new FormData();
-      formData.append('path', 'getRequestsByClientId');
-      formData.append('email', userEmail);
-      formData.append('token', userToken);
-
-      try {
-        const response = await fetch(API_URL, { method: 'POST', body: formData });
-        const result = await response.json();
-
-        if (result.success) {
-          if (result.orders.length === 0) {
-            alertMsg.innerHTML = `<div class="alert red">Aucune commande trouvée.</div>`;
-            return;
-          }
-          result.orders.forEach(order => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td>${order.id}</td>
-              <td>${order.type}</td>
-              <td>${order.status}</td>
-              <td>
-                <button class="btn" onclick="goToTrack(${order.id})">Suivre</button>
-              </td>
-            `;
-            ordersTable.appendChild(tr);
-          });
-        } else {
-          alertMsg.innerHTML = `<div class="alert red">${result.message}</div>`;
-        }
-      } catch (error) {
-        alertMsg.innerHTML = `<div class="alert red">Erreur réseau, veuillez réessayer.</div>`;
-      }
-    }
-
-    // تابع إعادة التوجيه إلى صفحة التتبع (track-request.html)
-    function goToTrack(orderId) {
-      window.location.href = `track-request.html?orderId=${orderId}`;
-    }
-
-    // عند تحميل الصفحة، نفذ الطلبات
-    loadOrders();
-  </script>
-</body>
-</html>
