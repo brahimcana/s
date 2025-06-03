@@ -1,50 +1,69 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <title>Test Google Apps Script</title>
+  <meta charset="UTF-8" />
+  <title>Test API Coursier Prioritaire Toulouse</title>
 </head>
 <body>
-  <h2>Tester l'envoi de données vers Google Apps Script</h2>
+  <h1>Test API Google Apps Script</h1>
 
-  <label for="nom">Nom :</label>
-  <input type="text" id="nom" placeholder="Votre nom"><br><br>
+  <h2>1. Inscription utilisateur</h2>
+  <form id="registerForm">
+    <label>Email: <input type="email" name="email" required></label><br/>
+    <label>Mot de passe: <input type="password" name="password" required></label><br/>
+    <label>Rôle:
+      <select name="role">
+        <option value="client">Client</option>
+        <option value="driver">Livreur</option>
+      </select>
+    </label><br/>
+    <button type="submit">S'inscrire</button>
+  </form>
 
-  <label for="email">Email :</label>
-  <input type="email" id="email" placeholder="Votre email"><br><br>
+  <h2>2. Connexion utilisateur</h2>
+  <form id="loginForm">
+    <label>Email: <input type="email" name="email" required></label><br/>
+    <label>Mot de passe: <input type="password" name="password" required></label><br/>
+    <button type="submit">Se connecter</button>
+  </form>
 
-  <button onclick="envoyer()">Envoyer</button>
+  <h2>Résultat</h2>
+  <pre id="result"></pre>
 
-  <p id="resultat" style="margin-top:20px;color:blue;"></p>
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
 
-  <script>
-    async function envoyer() {
-      const nom = document.getElementById('nom').value;
-      const email = document.getElementById('email').value;
+  // دالة مساعدة لإرسال POST مع application/x-www-form-urlencoded
+  async function post(path, params) {
+    params.path = path;
+    const formBody = new URLSearchParams(params).toString();
 
-      const data = {
-        name: nom,
-        email: email
-      };
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8" },
+      body: formBody
+    });
+    return res.json();
+  }
 
-      const url = 'https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec';
+  // التعامل مع الفورم التسجيل
+  document.getElementById("registerForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const params = Object.fromEntries(formData.entries());
+    const response = await post("registerUser", params);
+    document.getElementById("result").textContent = JSON.stringify(response, null, 2);
+  });
 
-      try {
-        const res = await fetch(url + '?path=createUser', {
-          method: 'POST',
-          body: JSON.stringify(data),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+  // التعامل مع الفورم تسجيل الدخول
+  document.getElementById("loginForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const params = Object.fromEntries(formData.entries());
+    const response = await post("loginUser", params);
+    document.getElementById("result").textContent = JSON.stringify(response, null, 2);
+  });
+</script>
 
-        const result = await res.json();
-        document.getElementById('resultat').textContent = '✅ Succès : ' + JSON.stringify(result);
-
-      } catch (error) {
-        document.getElementById('resultat').textContent = '❌ Erreur : ' + error.message;
-      }
-    }
-  </script>
 </body>
 </html>
