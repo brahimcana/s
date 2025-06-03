@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Test API Google Script</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; max-width: 300px; }
+    .result { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+  </style>
+</head>
+<body>
+
+  <h2>Test de Connexion à Google Apps Script</h2>
+
+  <label>Email :</label>
+  <input type="email" id="email" placeholder="email@test.com">
+
+  <label>Mot de passe :</label>
+  <input type="password" id="password" placeholder="••••••••">
+
+  <button onclick="sendTest()">Envoyer</button>
+
+  <div class="result" id="resultBox">Résultat ici...</div>
+
+  <script>
+    async function sendTest() {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const resultBox = document.getElementById('resultBox');
+
+      const url = 'https://script.google.com/macros/s/TON_DEPLOY_URL/exec'; // ضع هنا رابط Google Script Web App
+      const body = {
+        action: 'login',  // أو 'register' أو 'createOrder' حسب ما تريد تجربته
+        data: {
+          email: email,
+          password: password
+        }
+      };
+
+      resultBox.innerHTML = '⏳ Envoi...';
+
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          body: JSON.stringify(body),
+          headers: { 'Content-Type': 'application/json' }
+        });
+
+        const json = await res.json();
+        resultBox.innerHTML = `<pre>${JSON.stringify(json, null, 2)}</pre>`;
+      } catch (error) {
+        resultBox.innerHTML = `<b style="color: red;">Erreur :</b> ${error.message}`;
+      }
+    }
+  </script>
+
+</body>
+</html>
