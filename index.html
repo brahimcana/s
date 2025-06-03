@@ -1,61 +1,182 @@
-<!-- index.html -->
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>التسجيل - Coursier Prioritaire</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>تسجيل الدخول / التسجيل – Coursier Prioritaire</title>
+
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- خطوط Google (اختياري) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;600;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <!-- ملف جافاسكريبت العام -->
   <script src="scripts.js" defer></script>
+
+  <style>
+    body {
+      font-family: 'Almarai', sans-serif;
+      background-color: #f3f4f6;
+    }
+  </style>
 </head>
-<body>
-  <div class="container">
-    <header>
-      <h1>مرحبًا في Coursier Prioritaire</h1>
-      <p>سجّل الدخول أو أنشئ حسابًا جديدًا!</p>
-    </header>
+<body class="min-h-screen flex items-center justify-center">
 
-    <div id="alert-container"></div>
+  <div class="w-full max-w-md mx-4">
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+      <!-- رأس الصفحة -->
+      <div class="px-6 py-4 bg-gradient-to-r from-blue-500 to-indigo-600 text-white">
+        <h1 class="text-2xl font-bold text-center">Coursier Prioritaire</h1>
+        <p class="text-sm text-center mt-1">سجل الدخول أو أنشئ حسابًا جديدًا</p>
+      </div>
 
-    <!-- نموذج تسجيل الدخول -->
-    <form id="login-form">
-      <h2>تسجيل الدخول</h2>
-      <label for="login-phone">رقم الهاتف:</label>
-      <input type="tel" id="login-phone" placeholder="06XXXXXXXX" required />
-      <button type="submit" class="btn">تسجيل الدخول</button>
-    </form>
+      <!-- حاوية الإشعارات -->
+      <div id="alert-container" class="px-6 py-4"></div>
 
-    <hr />
+      <!-- محتوى النماذج -->
+      <div class="px-6 py-8">
 
-    <!-- نموذج إنشاء حساب جديد -->
-    <form id="register-form">
-      <h2>إنشاء حساب جديد</h2>
-      <label for="reg-name">الاسم كاملًا:</label>
-      <input type="text" id="reg-name" placeholder="مثال: محمد علي" required />
+        <!-- Tabs للتبديل بين تسجيل الدخول والتسجيل -->
+        <div class="flex justify-center mb-6">
+          <button
+            id="tab-login"
+            class="flex-1 py-2 text-center font-semibold text-gray-700 border-b-2 border-blue-500 focus:outline-none"
+          >
+            تسجيل الدخول
+          </button>
+          <button
+            id="tab-register"
+            class="flex-1 py-2 text-center font-semibold text-gray-500 border-b-2 border-transparent hover:text-gray-700 focus:outline-none"
+          >
+            إنشاء حساب
+          </button>
+        </div>
 
-      <label for="reg-phone">رقم الهاتف:</label>
-      <input type="tel" id="reg-phone" placeholder="06XXXXXXXX" required />
+        <!-- نموذج تسجيل الدخول -->
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label for="login-phone" class="block text-sm font-medium text-gray-700">رقم الهاتف</label>
+            <input
+              type="tel"
+              id="login-phone"
+              name="login-phone"
+              placeholder="06XXXXXXXX"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                     placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <button
+            type="submit"
+            id="btn-login-submit"
+            class="w-full flex justify-center py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none disabled:opacity-50"
+          >
+            تسجيل الدخول
+          </button>
+        </form>
 
-      <label for="reg-email">البريد الإلكتروني (اختياري):</label>
-      <input type="email" id="reg-email" placeholder="name@example.com" />
+        <!-- نموذج التسجيل -->
+        <form id="register-form" class="hidden space-y-4">
+          <div>
+            <label for="reg-name" class="block text-sm font-medium text-gray-700">الاسم كاملًا</label>
+            <input
+              type="text"
+              id="reg-name"
+              name="reg-name"
+              placeholder="مثال: محمد علي"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                     placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label for="reg-phone" class="block text-sm font-medium text-gray-700">رقم الهاتف</label>
+            <input
+              type="tel"
+              id="reg-phone"
+              name="reg-phone"
+              placeholder="06XXXXXXXX"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                     placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label for="reg-email" class="block text-sm font-medium text-gray-700">البريد الإلكتروني (اختياري)</label>
+            <input
+              type="email"
+              id="reg-email"
+              name="reg-email"
+              placeholder="name@example.com"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                     placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div>
+            <label for="reg-role" class="block text-sm font-medium text-gray-700">نوع الحساب</label>
+            <select
+              id="reg-role"
+              name="reg-role"
+              required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                     focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="client">عميل</option>
+              <option value="courier">ساعي توصيل</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            id="btn-register-submit"
+            class="w-full flex justify-center py-2 px-4 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 focus:outline-none disabled:opacity-50"
+          >
+            إنشاء الحساب
+          </button>
+        </form>
+      </div>
+    </div>
 
-      <label for="reg-role">نوع الحساب:</label>
-      <select id="reg-role" required>
-        <option value="client">عميل</option>
-        <option value="courier">ساعي توصيل</option>
-      </select>
-
-      <button type="submit" class="btn">إنشاء الحساب</button>
-    </form>
+    <p class="text-center text-gray-500 text-xs mt-6">
+      &copy; 2025 Coursier Prioritaire Toulouse
+    </p>
   </div>
 
-  <footer>
-    &copy; 2025 Coursier Prioritaire Toulouse
-  </footer>
-
+  <!-- جافاسكريبت مسؤول عن تغيير التبويبات وربط الأحداث -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      // إذا المستخدم مسجل محلياً، توجيهه مباشرةً
+      // التبويبات (Tabs)
+      const tabLogin = document.getElementById("tab-login");
+      const tabRegister = document.getElementById("tab-register");
+      const formLogin = document.getElementById("login-form");
+      const formRegister = document.getElementById("register-form");
+
+      // تفعيل تبويب تسجيل الدخول انتقل إلى formLogin
+      tabLogin.addEventListener("click", () => {
+        tabLogin.classList.replace("text-gray-500", "text-gray-700");
+        tabLogin.classList.replace("border-transparent", "border-blue-500");
+        tabRegister.classList.replace("text-gray-700", "text-gray-500");
+        tabRegister.classList.replace("border-blue-500", "border-transparent");
+        formLogin.classList.remove("hidden");
+        formRegister.classList.add("hidden");
+      });
+
+      // تفعيل تبويب التسجيل انتقل إلى formRegister
+      tabRegister.addEventListener("click", () => {
+        tabRegister.classList.replace("text-gray-500", "text-gray-700");
+        tabRegister.classList.replace("border-transparent", "border-blue-500");
+        tabLogin.classList.replace("text-gray-700", "text-gray-500");
+        tabLogin.classList.replace("border-blue-500", "border-transparent");
+        formRegister.classList.remove("hidden");
+        formLogin.classList.add("hidden");
+      });
+
+      // إذا المستخدم محفوظ محليًا، أعد التوجيه حسب دوره
       const user = getUserFromLocal();
       if (user) {
         if (user.role === "client") window.location.href = "client.html";
@@ -63,10 +184,81 @@
       }
     });
 
-    // تسجيل الدخول
-    document.getElementById("login-form").addEventListener("submit", handleLogin);
-    // إنشاء حساب
-    document.getElementById("register-form").addEventListener("submit", handleRegister);
+    // ربط الحدث بنموذج تسجيل الدخول
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const phoneInput = document.getElementById("login-phone");
+      const phone = phoneInput.value.trim();
+      if (!phone) {
+        return showAlert("error", "رجاءً أدخل رقم الهاتف.", "alert-container");
+      }
+      // تعطيل الزر أثناء المعالجة
+      const btn = document.getElementById("btn-login-submit");
+      btn.disabled = true;
+      btn.textContent = "جارٍ التحقق...";
+      try {
+        const user = await postToApi("getUserByPhone", { phone });
+        if (user && user.id) {
+          saveUserToLocal(user);
+          showAlert("success", "تمّ تسجيل الدخول بنجاح.", "alert-container");
+          setTimeout(() => {
+            if (user.role === "client") window.location.href = "client.html";
+            else window.location.href = "courier.html";
+          }, 800);
+        } else {
+          showAlert("error", "هذا الرقم غير مسجل. يمكنك إنشاء حساب جديد.", "alert-container");
+          btn.disabled = false;
+          btn.textContent = "تسجيل الدخول";
+        }
+      } catch {
+        showAlert("error", "خطأ في الاتصال. حاول مجددًا.", "alert-container");
+        btn.disabled = false;
+        btn.textContent = "تسجيل الدخول";
+      }
+    });
+
+    // ربط الحدث بنموذج إنشاء الحساب
+    document.getElementById("register-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nameInput = document.getElementById("reg-name");
+      const phoneInput = document.getElementById("reg-phone");
+      const emailInput = document.getElementById("reg-email");
+      const roleSelect = document.getElementById("reg-role");
+
+      const name = nameInput.value.trim();
+      const phone = phoneInput.value.trim();
+      const email = emailInput.value.trim();
+      const role = roleSelect.value;
+
+      if (!name || !phone) {
+        return showAlert("error", "الاسم ورقم الهاتف مطلوبان.", "alert-container");
+      }
+
+      const btn = document.getElementById("btn-register-submit");
+      btn.disabled = true;
+      btn.textContent = "جارٍ الإنشاء...";
+
+      try {
+        const res = await postToApi("createUser", { name, phone, email, role });
+        if (res.id) {
+          const newUser = { id: res.id, name, phone, email, role };
+          saveUserToLocal(newUser);
+          showAlert("success", "تمّ إنشاء الحساب بنجاح.", "alert-container");
+          setTimeout(() => {
+            if (role === "client") window.location.href = "client.html";
+            else window.location.href = "courier.html";
+          }, 800);
+        } else {
+          showAlert("error", "فشل في إنشاء الحساب. حاول لاحقًا.", "alert-container");
+          btn.disabled = false;
+          btn.textContent = "إنشاء الحساب";
+        }
+      } catch {
+        showAlert("error", "خطأ في الاتصال. حاول مجددًا.", "alert-container");
+        btn.disabled = false;
+        btn.textContent = "إنشاء الحساب";
+      }
+    });
   </script>
 </body>
 </html>
