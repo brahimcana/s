@@ -1,7 +1,7 @@
 // ----------------------------------------------
 // 1. CONSTANTES & UTILES
 // ----------------------------------------------
-const API_URL = "https://script.google.com/macros/s/AKfycbzX0KHJwAxZwX2qKKLFolqhARNF5BDuLRQSzlM3oYkG9-EoV_83oLkov2Vr5QhGKrvv/exec"; // ← Remplace par ton URL Web App
+const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec"; // ← Remplace par ton URL Web App
 
 // Helper : afficher une alerte sous forme de bannière
 function showAlert(type, message, containerId) {
