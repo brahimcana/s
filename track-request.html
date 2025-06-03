@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suivi de Commande</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Arial', sans-serif; background-color: #f3f4f6; }
+  </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-md">
+    <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="index.html" class="text-xl font-bold text-blue-600">Coursier Prioritaire</a>
+      <button id="btn-menu" class="md:hidden text-gray-700 text-2xl">☰</button>
+      <ul id="nav-links" class="hidden md:flex space-x-6">
+        <li><a href="index.html" class="text-gray-700 hover:text-blue-600">Accueil</a></li>
+      </ul>
+    </div>
+    <div id="nav-mobile" class="px-4 pb-3 hidden">
+      <ul class="space-y-2">
+        <li><a href="index.html" class="block text-gray-700 hover:text-blue-600">Accueil</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Contenu -->
+  <main class="flex-1 container mx-auto px-4 py-6">
+    <div id="orderInfo" class="bg-white shadow-lg rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Suivi de la commande</h2>
+      <div id="details" class="space-y-3 text-gray-700"></div>
+      <div id="mapLink" class="mt-4"></div>
+    </div>
+  </main>
+
+  <footer class="bg-gray-100 text-center py-4 text-gray-500 text-sm">
+    &copy; 2025 Coursier Prioritaire Toulouse
+  </footer>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
+
+    // Toggle nav mobile
+    document.getElementById('btn-menu').addEventListener('click', () => {
+      document.getElementById('nav-mobile').classList.toggle('hidden');
+    });
+
+    // التحقق من المستخدم (يمكن السماح لكل من client أو driver)
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || "null");
+    if (!currentUser || !currentUser.token) {
+      window.location.href = 'login.html';
+    }
+    const userEmail = currentUser.email;
+    const userToken = currentUser.token;
+
+    // جلب معرف الطلب من الـ Query String
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('orderId');
+    if (!orderId) {
+      document.getElementById('details').innerHTML = `<div class="text-red-500">ID de commande manquant.</div>`;
+    } else {
+      // جلب تفاصيل الطلب لمعرفة العناوين والإحداثيات
+      (async () => {
+        // العمود: يُرجح أن يكون هناك دالة في الـ API لإرجاع تفاصيل طلب واحد
+        // لكن في النسخة الحالية لم ندرج دالة محددة لذلك، سننشئ جلب عام لكل الطلبات ثم نصفي
+        const params = new URLSearchParams();
+        params.append('path', 'getRequestsByClientId');
+        params.append('email', userEmail);
+        params.append('token', userToken);
+
+        try {
+          const res = await fetch(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: params.toString()
+          });
+          const data = await res.json();
+          if (data.success) {
+            const order = data.orders.find(o => o.id.toString() === orderId);
+            if (!order) {
+              document.getElementById('details').innerHTML = `<div class="text-red-500">Commande introuvable.</div>`;
+              return;
+            }
+            // عرض المعلومات الأساسية
+            const html = `
+              <p><strong>ID :</strong> ${order.id}</p>
+              <p><strong>Type :</strong> ${order.type || '—'}</p>
+              <p><strong>Statut :</strong> ${order.status}</p>
+            `;
+            document.getElementById('details').innerHTML = html;
+
+            // رابط خرائط Google (إذا كانت الإحداثيات محفوظة في الجدول)
+            // في هذا المثال، نفترض أن لديك lat/lng مخزنة (نستخدم قيم وهمية)
+            // */
+            const pickupLat = order.latitudePU || 0;
+            const pickupLng = order.longitudePU || 0;
+            const deliveryLat = order.latitudeDO || 0;
+            const deliveryLng = order.longitudeDO || 0;
+            const mapsUrl = `https://www.google.com/maps/dir/${pickupLat},${pickupLng}/${deliveryLat},${deliveryLng}`;
+            document.getElementById('mapLink').innerHTML = `
+              <a href="${mapsUrl}" target="_blank" class="text-blue-600 hover:underline">
+                ➔ Voir l'itinéraire dans Google Maps
+              </a>
+            `;
+          } else {
+            document.getElementById('details').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">${data.message}</div>`;
+          }
+        } catch {
+          document.getElementById('details').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur réseau</div>`;
+        }
+      })();
+    }
+  </script>
+</body>
+</html>
