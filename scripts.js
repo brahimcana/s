@@ -143,3 +143,15 @@ if (window.location.pathname.includes("profile-driver.html")) {
     }
   });
 }
+function showAlert(message, type = 'error') {
+  const alertContainer = document.getElementById("alert-container");
+  if (alertContainer) {
+    alertContainer.innerHTML = `
+      <div class="p-3 mb-4 text-sm rounded ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
+        ${message}
+      </div>`;
+    setTimeout(() => {
+      alertContainer.innerHTML = "";
+    }, 5000);
+  }
+}
