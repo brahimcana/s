@@ -4,327 +4,193 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard Client</title>
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Arial', sans-serif; background-color: #f3f4f6; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    tr:nth-child(even) { background-color: #f2f2f2; }
-    th { background-color: #4a5568; color: white; }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    nav {
+      background-color: #fff;
+      padding: 12px 16px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav a {
+      text-decoration: none;
+      color: #2980b9;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .logout-btn {
+      background: none;
+      border: none;
+      color: #e74c3c;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    main {
+      flex: 1;
+      padding: 16px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #2980b9;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background-color: #f9fafb;
+    }
+    .btn {
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn:hover {
+      background-color: #1c5980;
+    }
+    .alert {
+      margin-top: 12px;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .alert.red {
+      background-color: #fdecea;
+      color: #e74c3c;
+      border: 1px solid #e74c3c;
+    }
+    .alert.green {
+      background-color: #e8f8f5;
+      color: #16a085;
+      border: 1px solid #16a085;
+    }
+    /* Responsive */
+    @media (max-width: 600px) {
+      th, td {
+        font-size: 12px;
+        padding: 6px;
+      }
+      .btn {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+    }
   </style>
 </head>
-<body class="flex flex-col min-h-screen">
-
-  <!-- Navigation -->
-  <nav class="bg-white shadow-md">
-    <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
-      <a href="index.html" class="text-xl font-bold text-blue-600">Coursier Prioritaire</a>
-      <button id="btn-menu" class="md:hidden text-gray-700 text-2xl">☰</button>
-      <ul id="nav-links" class="hidden md:flex space-x-6">
-        <li><a href="index.html" class="text-gray-700 hover:text-blue-600">Accueil</a></li>
-        <li><button id="btnLogout" class="text-red-500 hover:text-red-700">Déconnexion</button></li>
-      </ul>
-    </div>
-    <div id="nav-mobile" class="px-4 pb-3 hidden">
-      <ul class="space-y-2">
-        <li><a href="index.html" class="block text-gray-700 hover:text-blue-600">Accueil</a></li>
-        <li><button id="btnLogoutMobile" class="block text-red-500 hover:text-red-700">Déconnexion</button></li>
-      </ul>
-    </div>
+<body>
+  <nav>
+    <a href="index.html">Coursier Prioritaire</a>
+    <button class="logout-btn" id="logoutBtn">Déconnexion</button>
   </nav>
 
-  <!-- Contenu Dashboard -->
-  <main class="flex-1 container mx-auto px-4 py-6 space-y-10">
-
-    <!-- SECTION 1: Créer une nouvelle commande -->
-    <section class="bg-white shadow-lg rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-4">Créer une nouvelle commande</h2>
-      <div id="alert-create" class="mb-4"></div>
-      <form id="createForm" class="grid grid-cols-1 gap-4">
-        <div>
-          <label for="from" class="block text-sm font-medium text-gray-700">Adresse de départ</label>
-          <input
-            type="text"
-            id="from"
-            placeholder="Ex : 10 Rue Esquirol, Toulouse"
-            required
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label for="to" class="block text-sm font-medium text-gray-700">Adresse de livraison</label>
-          <input
-            type="text"
-            id="to"
-            placeholder="Ex : 15 Rue Peyrolières, Toulouse"
-            required
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div>
-          <label for="km" class="block text-sm font-medium text-gray-700">Distance estimée (km)</label>
-          <input
-            type="number"
-            step="0.1"
-            id="km"
-            placeholder="Ex : 2.5"
-            required
-            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-        <div class="flex items-center space-x-2">
-          <input type="checkbox" id="urgent" class="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500" />
-          <label for="urgent" class="text-sm text-gray-700">Urgent (+ tarif)</label>
-        </div>
-        <div id="fee-display" class="text-lg font-semibold text-gray-800"></div>
-        <button
-          type="button"
-          id="btnCalcFee"
-          class="w-full py-2 px-4 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600 transition"
-        >
-          Calculer le tarif
-        </button>
-        <button
-          type="submit"
-          id="btnCreate"
-          class="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition"
-        >
-          Créer et payer ma commande
-        </button>
-      </form>
-    </section>
-
-    <!-- SECTION 2: Afficher les commandes existantes -->
-    <section class="bg-white shadow-lg rounded-lg p-6">
-      <h2 class="text-xl font-semibold mb-4">Mes commandes</h2>
-      <div id="alert-orders" class="mb-4"></div>
-      <div class="overflow-x-auto">
-        <table class="min-w-full text-sm text-gray-700">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="px-3 py-2">ID</th>
-              <th class="px-3 py-2">Type</th>
-              <th class="px-3 py-2">Distance</th>
-              <th class="px-3 py-2">Tarif (€)</th>
-              <th class="px-3 py-2">Statut</th>
-              <th class="px-3 py-2">Paiement</th>
-              <th class="px-3 py-2">Action</th>
-            </tr>
-          </thead>
-          <tbody id="ordersTable" class="divide-y divide-gray-200"></tbody>
-        </table>
-      </div>
-    </section>
+  <main>
+    <h2>Mes commandes</h2>
+    <div id="alert-msg"></div>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Type</th>
+          <th>Statut</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="ordersTable">
+        <!-- ستُعبَّأ هنا الديناميكي -->
+      </tbody>
+    </table>
   </main>
-
-  <footer class="bg-gray-100 text-center py-4 text-gray-500 text-sm">
-    &copy; 2025 Coursier Prioritaire Toulouse
-  </footer>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
+    const logoutBtn = document.getElementById('logoutBtn');
+    const alertMsg = document.getElementById('alert-msg');
+    const ordersTable = document.getElementById('ordersTable');
 
-    // Toggle nav mobile
-    document.getElementById('btn-menu').addEventListener('click', () => {
-      document.getElementById('nav-mobile').classList.toggle('hidden');
-    });
-    document.getElementById('btnLogout').addEventListener('click', () => {
-      localStorage.clear();
-      window.location.href = 'index.html';
-    });
-    document.getElementById('btnLogoutMobile').addEventListener('click', () => {
-      localStorage.clear();
-      window.location.href = 'index.html';
-    });
-
-    // التحقّق من المستخدم الحالي
+    // تأكد وجود المستخدم وكونه عميل
     const currentUser = JSON.parse(localStorage.getItem('currentUser') || "null");
     if (!currentUser || currentUser.role !== 'client') {
       window.location.href = 'login.html';
     }
-    const clientEmail = currentUser.email;
-    const clientToken = currentUser.token;
+    const userEmail = currentUser.email;
+    const userToken = currentUser.token;
 
-    // دالة لتحميل الطلبات
-    async function loadClientOrders() {
-      const params = new URLSearchParams();
-      params.append('path', 'getRequestsByClientId');
-      params.append('email', clientEmail);
-      params.append('token', clientToken);
+    // زرّ تسجيل الخروج
+    logoutBtn.addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    });
+
+    // دالة لجلب طلبات العميل وعرضها
+    async function loadOrders() {
+      alertMsg.textContent = '';
+      ordersTable.innerHTML = '';
+
+      const formData = new FormData();
+      formData.append('path', 'getRequestsByClientId');
+      formData.append('email', userEmail);
+      formData.append('token', userToken);
 
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-          body: params.toString()
-        });
-        const data = await res.json();
-        const tbody = document.getElementById('ordersTable');
-        tbody.innerHTML = '';
-        if (data.success) {
-          data.orders.forEach(order => {
+        const response = await fetch(API_URL, { method: 'POST', body: formData });
+        const result = await response.json();
+
+        if (result.success) {
+          if (result.orders.length === 0) {
+            alertMsg.innerHTML = `<div class="alert red">Aucune commande trouvée.</div>`;
+            return;
+          }
+          result.orders.forEach(order => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-              <td class="px-3 py-2">${order.id}</td>
-              <td class="px-3 py-2">${order.type || '—'}</td>
-              <td class="px-3 py-2">${order.distanceKm || '—'} km</td>
-              <td class="px-3 py-2">${order.fee} €</td>
-              <td class="px-3 py-2">${order.status}</td>
-              <td class="px-3 py-2">${order.paymentStatus}</td>
-              <td class="px-3 py-2">
-                ${
-// إذا الطلب ينتظر الإسناد والدفع مكتمل، إظهار زر إلغاء
-(order.status === 'Unassigned' && order.paymentStatus === 'paid')
-  ? `<button onclick="cancelOrder('${order.id}')" class="text-red-500 hover:underline">Annuler</button>`
-  : `<a href="track-request.html?orderId=${order.id}" class="text-blue-600 hover:underline">Suivre</a>`
-}
+              <td>${order.id}</td>
+              <td>${order.type}</td>
+              <td>${order.status}</td>
+              <td>
+                <button class="btn" onclick="goToTrack(${order.id})">Suivre</button>
               </td>
             `;
-            tbody.appendChild(tr);
+            ordersTable.appendChild(tr);
           });
         } else {
-          document.getElementById('alert-orders').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">${data.message}</div>`;
+          alertMsg.innerHTML = `<div class="alert red">${result.message}</div>`;
         }
-      } catch (err) {
-        document.getElementById('alert-orders').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur réseau</div>`;
+      } catch (error) {
+        alertMsg.innerHTML = `<div class="alert red">Erreur réseau, veuillez réessayer.</div>`;
       }
     }
 
-    // حساب التكلفة (calc fee)
-    document.getElementById('btnCalcFee').addEventListener('click', async () => {
-      const km = parseFloat(document.getElementById('km').value);
-      const urgent = document.getElementById('urgent').checked;
-      const alertCreate = document.getElementById('alert-create');
-      alertCreate.innerHTML = '';
-
-      if (isNaN(km) || km <= 0) {
-        alertCreate.innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Entrez une distance valide.</div>`;
-        return;
-      }
-      const params = new URLSearchParams();
-      params.append('path', 'calculateFee');
-      params.append('email', clientEmail);
-      params.append('token', clientToken);
-      params.append('type', 'purchase');
-      params.append('urgent', urgent ? 'true' : 'false');
-
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-          body: params.toString()
-        });
-        const data = await res.json();
-        if (data.success) {
-          document.getElementById('fee-display').textContent = `Tarif estimé : ${data.fee.toFixed(2)} €`;
-        } else {
-          alertCreate.innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Impossible de calculer le tarif.</div>`;
-        }
-      } catch {
-        alertCreate.innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur réseau</div>`;
-      }
-    });
-
-    // إنشاء الطلب ودفع
-    document.getElementById('createForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const from = document.getElementById('from').value.trim();
-      const to = document.getElementById('to').value.trim();
-      const km = parseFloat(document.getElementById('km').value);
-      const urgent = document.getElementById('urgent').checked;
-      const alertCreate = document.getElementById('alert-create');
-      alertCreate.innerHTML = '';
-
-      if (!from || !to || isNaN(km) || km <= 0) {
-        alertCreate.innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Tous les champs sont requis.</div>`;
-        return;
-      }
-
-      try {
-        // 1) حساب التكلفة
-        const calcParams = new URLSearchParams();
-        calcParams.append('path', 'calculateFee');
-        calcParams.append('email', clientEmail);
-        calcParams.append('token', clientToken);
-        calcParams.append('type', 'purchase');
-        calcParams.append('urgent', urgent ? 'true' : 'false');
-
-        const resCalc = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-          body: calcParams.toString()
-        });
-        const dataCalc = await resCalc.json();
-        if (!dataCalc.success) {
-          alertCreate.innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur calcul tarif.</div>`;
-          return;
-        }
-        const fee = dataCalc.fee;
-
-        // 2) إنشاء PaymentIntent
-        const piParams = new URLSearchParams();
-        piParams.append('path', 'createPaymentIntent');
-        piParams.append('email', clientEmail);
-        piParams.append('token', clientToken);
-        piParams.append('amount', fee);
-        piParams.append('currency', 'eur');
-        piParams.append('clientEmail', clientEmail);
-
-        const resPi = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-          body: piParams.toString()
-        });
-        const dataPi = await resPi.json();
-        if (!dataPi.clientSecret) {
-          alertCreate.innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Impossible de créer PaymentIntent.</div>`;
-          return;
-        }
-        // نُحاكي نجاح الدفع
-        alertCreate.innerHTML = `<div class="bg-green-100 border border-green-300 text-green-800 px-4 py-2 rounded">Paiement simulé réussi. Création de la commande...</div>`;
-
-        // 3) إنشاء الطلب
-        const orderParams = new URLSearchParams();
-        orderParams.append('path', 'createRequest');
-        orderParams.append('email', clientEmail);
-        orderParams.append('token', clientToken);
-        orderParams.append('type', 'purchase');
-        orderParams.append('description', '—');
-        orderParams.append('pickupAddress', from);
-        orderParams.append('deliveryAddress', to);
-        orderParams.append('urgent', urgent ? 'true' : 'false');
-        orderParams.append('latitudePU', '0');
-        orderParams.append('longitudePU', '0');
-        orderParams.append('latitudeDO', '0');
-        orderParams.append('longitudeDO', '0');
-        orderParams.append('paymentIntentId', dataPi.paymentIntentId);
-
-        const resOrder = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-          body: orderParams.toString()
-        });
-        const dataOrder = await resOrder.json();
-        if (dataOrder.requestId) {
-          alertCreate.innerHTML = `<div class="bg-green-100 border border-green-300 text-green-800 px-4 py-2 rounded">Commande créée (ID : ${dataOrder.requestId}).</div>`;
-          setTimeout(loadClientOrders, 1000);
-        } else {
-          alertCreate.innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur création commande.</div>`;
-        }
-      } catch {
-        alertCreate.innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur réseau</div>`;
-      }
-    });
-
-    // محاكاة إلغاء الطلب
-    function cancelOrder(orderId) {
-      alert(`Annulation simulée pour la commande ${orderId}`);
-      loadClientOrders();
+    // تابع إعادة التوجيه إلى صفحة التتبع (track-request.html)
+    function goToTrack(orderId) {
+      window.location.href = `track-request.html?orderId=${orderId}`;
     }
 
-    // عند التحميل الأولي
-    loadClientOrders();
+    // عند تحميل الصفحة، نفذ الطلبات
+    loadOrders();
   </script>
 </body>
 </html>
