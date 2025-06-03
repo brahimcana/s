@@ -64,6 +64,8 @@ async function postToApi(path, body) {
       body: JSON.stringify(body)
     });
     if (!response.ok) {
+      const errText = await response.text();
+      console.error("API Error Response Text:", errText);
       throw new Error("فشل الاتصال بالـ API.");
     }
     return await response.json();
@@ -78,6 +80,8 @@ async function getFromApi(path) {
   try {
     const response = await fetch(`${API_BASE_URL}?path=${encodeURIComponent(path)}`);
     if (!response.ok) {
+      const errText = await response.text();
+      console.error("API Error Response Text:", errText);
       throw new Error("فشل الاتصال بالـ API.");
     }
     return await response.json();
@@ -153,7 +157,7 @@ function setPickupFromGPS() {
 }
 
 // ----------------------------------------------
-// 8. تسجيل الدخول / إنشاء حساب (index.html)
+// 8. تسجيل الدخول (Login) وإنشاء حساب (Register) - index.html
 // ----------------------------------------------
 async function handleLogin(e) {
   e.preventDefault();
@@ -164,7 +168,7 @@ async function handleLogin(e) {
   }
   const btn = document.getElementById("btn-login-submit");
   btn.disabled = true;
-  btn.textContent = "جارٍ التحقق...";
+  btn.textContent = "جارٍ التحقق…";
   try {
     const user = await postToApi("getUserByPhone", { phone });
     if (user && user.id) {
@@ -204,7 +208,7 @@ async function handleRegister(e) {
 
   const btn = document.getElementById("btn-register-submit");
   btn.disabled = true;
-  btn.textContent = "جارٍ الإنشاء...";
+  btn.textContent = "جارٍ الإنشاء…";
   try {
     const res = await postToApi("createUser", { name, phone, email, role });
     if (res.id) {
@@ -247,7 +251,7 @@ async function createRequestHandler(e) {
   const fee = feeRes.fee;
   if (fee === null) return;
 
-  // 9.2 إنشاء PaymentIntent من Backend
+  // 9.2 إنشاء PaymentIntent في الـ Backend
   let pi;
   try {
     pi = await postToApi("createPaymentIntent", {
@@ -256,14 +260,14 @@ async function createRequestHandler(e) {
       clientId: currentUser.id
     });
   } catch {
-    return showAlert("error", "فشل في إنشاء الطلبية للدفع.", "alert-container");
+    return showAlert("error", "فشل في إنشاء طلب الدفع.", "alert-container");
   }
 
-  // 9.3 إعداد Stripe.js
+  // 9.3 تهيئة Stripe.js Elements
   const stripe = Stripe(STRIPE_PUBLIC_KEY);
   const { clientSecret } = pi;
 
-  // 9.4 تأكيد الدفع عبر Stripe Elements
+  // 9.4 تأكيد الدفع عبر بطاقة المستخدم
   const { error } = await stripe.confirmCardPayment(clientSecret, {
     payment_method: {
       card: cardElement,
@@ -278,7 +282,7 @@ async function createRequestHandler(e) {
     return showAlert("error", `فشل الدفع: ${error.message}`, "alert-container");
   }
 
-  // 9.5 بعد تأكيد الدفع، ننشئ الطلب في Google Sheets
+  // 9.5 بعد نجاح الدفع، ننشئ الطلب في Google Sheets
   try {
     const pu = await geocode(pickupAddress);
     const du = await geocode(deliveryAddress);
@@ -314,51 +318,65 @@ async function createRequestHandler(e) {
 // 10. جلب وعرض طلبات العميل (client.html)
 // ----------------------------------------------
 async function loadClientRequests() {
-  const clientReqs = await postToApi("getRequestsByClientId", { clientId: currentUser.id });
-  const tbody = document.querySelector("#requests-table tbody");
-  tbody.innerHTML = "";
-  clientReqs.forEach((req) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${req.requestId}</td>
-      <td>${req.type}</td>
-      <td>${req.description}</td>
-      <td>${req.status}</td>
-      <td>${req.fee}€</td>
-      <td>${req.paymentStatus}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  try {
+    const clientReqs = await postToApi("getRequestsByClientId", { clientId: currentUser.id });
+    const tbody = document.querySelector("#requests-table");
+    tbody.innerHTML = "";
+    clientReqs.forEach((req) => {
+      const tr = document.createElement("tr");
+      tr.className = "border-b hover:bg-gray-50";
+      tr.innerHTML = `
+        <td class="px-4 py-2 text-center">${req.requestId}</td>
+        <td class="px-4 py-2 text-center">${req.type}</td>
+        <td class="px-4 py-2">${req.description}</td>
+        <td class="px-4 py-2 text-center">${req.status}</td>
+        <td class="px-4 py-2 text-center">${req.fee}€</td>
+        <td class="px-4 py-2 text-center">${req.paymentStatus}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch {
+    showAlert("error", "فشل في جلب طلبات العميل.", "alert-container");
+  }
 }
 
 // ----------------------------------------------
 // 11. إدارة طلبات الساعي (courier.html)
 // ----------------------------------------------
 async function loadUnassignedRequests() {
-  const reqs = await getFromApi("listUnassignedRequests");
-  const tbody = document.querySelector("#unassigned-requests-table tbody");
-  tbody.innerHTML = "";
-  reqs.forEach((req) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${req.requestId}</td>
-      <td>${req.type}</td>
-      <td>${req.description}</td>
-      <td>${req.pickupAddress}</td>
-      <td>${req.deliveryAddress}</td>
-      <td>${req.fee}€</td>
-      <td><button class="btn-small" onclick="acceptRequest(${req.requestId})">قبول</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
+  try {
+    const reqs = await getFromApi("listUnassignedRequests");
+    const tbody = document.querySelector("#unassigned-requests-table");
+    tbody.innerHTML = "";
+    reqs.forEach((req) => {
+      const tr = document.createElement("tr");
+      tr.className = "border-b hover:bg-gray-50";
+      tr.innerHTML = `
+        <td class="px-4 py-2 text-center">${req.requestId}</td>
+        <td class="px-4 py-2 text-center">${req.type}</td>
+        <td class="px-4 py-2">${req.description}</td>
+        <td class="px-4 py-2">${req.pickupAddress}</td>
+        <td class="px-4 py-2">${req.deliveryAddress}</td>
+        <td class="px-4 py-2 text-center">${req.fee}€</td>
+        <td class="px-4 py-2 text-center">
+          <button
+            class="bg-green-500 hover:bg-green-600 text-white py-1 px-3 rounded-md transition-all"
+            onclick="acceptRequest(${req.requestId})"
+          >
+            قبول
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch {
+    showAlert("error", "فشل في جلب الطلبات المتاحة.", "alert-container");
+  }
 }
 
 async function acceptRequest(requestId) {
   try {
-    const res = await postToApi("assignCourier", {
-      requestId,
-      courierId: currentUser.id
-    });
+    const res = await postToApi("assignCourier", { requestId, courierId: currentUser.id });
     if (res.success) {
       showAlert("success", `تمّ قبول الطلب رقم ${requestId}`, "alert-container");
       setTimeout(() => {
@@ -374,28 +392,33 @@ async function acceptRequest(requestId) {
 }
 
 async function loadMyRequests() {
-  const myReqs = await postToApi("getRequestsByCourierId", { courierId: currentUser.id });
-  const tbody = document.querySelector("#my-requests-table tbody");
-  tbody.innerHTML = "";
-  myReqs.forEach((req) => {
-    let actionButtons = "";
-    if (req.status === "pending") {
-      actionButtons = `<button class="btn-small" onclick="markPicked(${req.requestId})">استلام</button>`;
-    } else if (req.status === "picked") {
-      actionButtons = `<button class="btn-small" onclick="markDelivered(${req.requestId})">توصيل</button>`;
-    } else if (req.status === "delivered") {
-      actionButtons = `<span>تمّ التسليم</span>`;
-    }
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${req.requestId}</td>
-      <td>${req.type}</td>
-      <td>${req.description}</td>
-      <td>${req.status}</td>
-      <td>${actionButtons}</td>
-    `;
-    tbody.appendChild(tr);
-  });
+  try {
+    const myReqs = await postToApi("getRequestsByCourierId", { courierId: currentUser.id });
+    const tbody = document.querySelector("#my-requests-table");
+    tbody.innerHTML = "";
+    myReqs.forEach((req) => {
+      let actionButtons = "";
+      if (req.status === "pending") {
+        actionButtons = `<button class="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md transition-all" onclick="markPicked(${req.requestId})">استلام</button>`;
+      } else if (req.status === "picked") {
+        actionButtons = `<button class="bg-indigo-500 hover:bg-indigo-600 text-white py-1 px-3 rounded-md transition-all" onclick="markDelivered(${req.requestId})">توصيل</button>`;
+      } else if (req.status === "delivered") {
+        actionButtons = `<span class="text-green-600 font-semibold">تمّ التسليم</span>`;
+      }
+      const tr = document.createElement("tr");
+      tr.className = "border-b hover:bg-gray-50";
+      tr.innerHTML = `
+        <td class="px-4 py-2 text-center">${req.requestId}</td>
+        <td class="px-4 py-2 text-center">${req.type}</td>
+        <td class="px-4 py-2">${req.description}</td>
+        <td class="px-4 py-2 text-center">${req.status}</td>
+        <td class="px-4 py-2 text-center">${actionButtons}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch {
+    showAlert("error", "فشل في جلب طلباتك الحالية.", "alert-container");
+  }
 }
 
 async function markPicked(requestId) {
