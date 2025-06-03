@@ -3,73 +3,274 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tableau de bord Livreur – Coursier Prioritaire Toulouse</title>
-
+  <title>Dashboard Livreur</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- JS général -->
-  <script src="scripts.js" defer></script>
-
   <style>
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; }
+    body { font-family: 'Arial', sans-serif; background-color: #f3f4f6; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    tr:nth-child(even) { background-color: #f2f2f2; }
+    th { background-color: #4a5568; color: white; }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="flex flex-col min-h-screen">
 
-  <!-- Barre de navigation -->
+  <!-- Navigation -->
   <nav class="bg-white shadow-md">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="index.html" class="text-2xl font-bold text-blue-600">Coursier Prioritaire</a>
-      <ul class="flex space-x-6">
+    <div class="max-w-md mx-auto px-4 py-3 flex justify-between items-center">
+      <a href="index.html" class="text-xl font-bold text-blue-600">Coursier Prioritaire</a>
+      <button id="btn-menu" class="md:hidden text-gray-700 text-2xl">☰</button>
+      <ul id="nav-links" class="hidden md:flex space-x-6">
         <li><a href="index.html" class="text-gray-700 hover:text-blue-600">Accueil</a></li>
-        <li><a href="dashboard-driver.html" class="text-blue-700 font-semibold">Tableau de bord</a></li>
-        <li><button id="btn-logout" class="text-red-500 hover:text-red-700">Déconnexion</button></li>
+        <li><button id="btnLogout" class="text-red-500 hover:text-red-700">Déconnexion</button></li>
+      </ul>
+    </div>
+    <div id="nav-mobile" class="px-4 pb-3 hidden">
+      <ul class="space-y-2">
+        <li><a href="index.html" class="block text-gray-700 hover:text-blue-600">Accueil</a></li>
+        <li><button id="btnLogoutMobile" class="block text-red-500 hover:text-red-700">Déconnexion</button></li>
       </ul>
     </div>
   </nav>
 
-  <!-- Contenu du dashboard livreur -->
-  <main class="flex-1 container mx-auto px-4 py-8 space-y-12">
+  <!-- Contenu Dashboard -->
+  <main class="flex-1 container mx-auto px-4 py-6 space-y-10">
+
+    <!-- SECTION 1: Commandes disponibles -->
     <section class="bg-white shadow-lg rounded-lg p-6">
       <h2 class="text-xl font-semibold mb-4">Commandes disponibles</h2>
+      <div id="alert-unassigned" class="mb-4"></div>
       <div class="overflow-x-auto">
-        <table class="min-w-full table-auto text-left text-gray-700 text-sm">
+        <table class="min-w-full text-sm text-gray-700">
           <thead class="bg-gray-100">
             <tr>
-              <th class="px-4 py-2">ID</th>
-              <th class="px-4 py-2">Client</th>
-              <th class="px-4 py-2">Type</th>
-              <th class="px-4 py-2">Distance</th>
-              <th class="px-4 py-2">Tarif</th>
-              <th class="px-4 py-2">Action</th>
+              <th class="px-3 py-2">ID</th>
+              <th class="px-3 py-2">Client</th>
+              <th class="px-3 py-2">Type</th>
+              <th class="px-3 py-2">Tarif (€)</th>
+              <th class="px-3 py-2">Action</th>
             </tr>
           </thead>
-          <tbody id="unassigned-orders-table" class="divide-y divide-gray-200"></tbody>
+          <tbody id="unassignedTable" class="divide-y divide-gray-200"></tbody>
         </table>
       </div>
     </section>
 
+    <!-- SECTION 2: Mes commandes en cours -->
     <section class="bg-white shadow-lg rounded-lg p-6">
       <h2 class="text-xl font-semibold mb-4">Mes commandes en cours</h2>
+      <div id="alert-assigned" class="mb-4"></div>
       <div class="overflow-x-auto">
-        <table class="min-w-full table-auto text-left text-gray-700 text-sm">
+        <table class="min-w-full text-sm text-gray-700">
           <thead class="bg-gray-100">
             <tr>
-              <th class="px-4 py-2">ID</th>
-              <th class="px-4 py-2">Type</th>
-              <th class="px-4 py-2">Statut</th>
-              <th class="px-4 py-2">Action</th>
+              <th class="px-3 py-2">ID</th>
+              <th class="px-3 py-2">Type</th>
+              <th class="px-3 py-2">Statut</th>
+              <th class="px-3 py-2">Action</th>
             </tr>
           </thead>
-          <tbody id="driver-orders-table" class="divide-y divide-gray-200"></tbody>
+          <tbody id="assignedTable" class="divide-y divide-gray-200"></tbody>
         </table>
       </div>
     </section>
   </main>
 
-  <!-- Pied de page -->
   <footer class="bg-gray-100 text-center py-4 text-gray-500 text-sm">
     &copy; 2025 Coursier Prioritaire Toulouse
   </footer>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
+
+    // Toggle nav mobile
+    document.getElementById('btn-menu').addEventListener('click', () => {
+      document.getElementById('nav-mobile').classList.toggle('hidden');
+    });
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    });
+    document.getElementById('btnLogoutMobile').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'index.html';
+    });
+
+    // التحقق من المستخدم الحالي
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || "null");
+    if (!currentUser || currentUser.role !== 'driver') {
+      window.location.href = 'login.html';
+    }
+    const driverEmail = currentUser.email;
+    const driverToken = currentUser.token;
+
+    // جلب الطلبات غير المخصصة
+    async function loadUnassigned() {
+      const params = new URLSearchParams();
+      params.append('path', 'listUnassignedRequests');
+      params.append('email', driverEmail);
+      params.append('token', driverToken);
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: params.toString()
+        });
+        const data = await res.json();
+        const tbody = document.getElementById('unassignedTable');
+        tbody.innerHTML = '';
+        if (data.success) {
+          data.orders.forEach(order => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="px-3 py-2">${order.id}</td>
+              <td class="px-3 py-2">${order.clientEmail}</td>
+              <td class="px-3 py-2">${order.type}</td>
+              <td class="px-3 py-2">${order.fee} €</td>
+              <td class="px-3 py-2">
+                <button onclick="acceptOrder('${order.id}')" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition">Accepter</button>
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          document.getElementById('alert-unassigned').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">${data.message}</div>`;
+        }
+      } catch {
+        document.getElementById('alert-unassigned').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur réseau</div>`;
+      }
+    }
+
+    // قبول الطلب
+    async function acceptOrder(orderId) {
+      const params = new URLSearchParams();
+      params.append('path', 'assignCourier');
+      params.append('email', driverEmail);
+      params.append('token', driverToken);
+      params.append('requestId', orderId);
+      params.append('courierEmail', driverEmail);
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: params.toString()
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("Commande acceptée !");
+          loadUnassigned();
+          loadAssigned();
+        } else {
+          document.getElementById('alert-unassigned').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">${data.message}</div>`;
+        }
+      } catch {
+        document.getElementById('alert-unassigned').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur réseau</div>`;
+      }
+    }
+
+    // جلب الطلبات المسندة للساعي
+    async function loadAssigned() {
+      const params = new URLSearchParams();
+      params.append('path', 'getRequestsByCourierId');
+      params.append('email', driverEmail);
+      params.append('token', driverToken);
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: params.toString()
+        });
+        const data = await res.json();
+        const tbody = document.getElementById('assignedTable');
+        tbody.innerHTML = '';
+        if (data.success) {
+          data.orders.forEach(order => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="px-3 py-2">${order.id}</td>
+              <td class="px-3 py-2">${order.type}</td>
+              <td class="px-3 py-2">${order.status}</td>
+              <td class="px-3 py-2">
+                ${
+                  order.status === 'Pending'
+                    ? `<button onclick="markPicked('${order.id}')" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 transition">Pris</button>`
+                    : order.status === 'Picked'
+                    ? `<button onclick="markDelivered('${order.id}')" class="bg-indigo-500 text-white px-3 py-1 rounded hover:bg-indigo-600 transition">Livré</button>`
+                    : `<span class="text-green-600 font-semibold">Livré</span>`
+                }
+              </td>
+            `;
+            tbody.appendChild(tr);
+          });
+        } else {
+          document.getElementById('alert-assigned').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">${data.message}</div>`;
+        }
+      } catch {
+        document.getElementById('alert-assigned').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur réseau</div>`;
+      }
+    }
+
+    // تغيير الحالة إلى "Picked"
+    async function markPicked(orderId) {
+      const params = new URLSearchParams();
+      params.append('path', 'updateRequestStatus');
+      params.append('email', driverEmail);
+      params.append('token', driverToken);
+      params.append('requestId', orderId);
+      params.append('action', 'Picked');
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: params.toString()
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("Commande prise en charge.");
+          loadAssigned();
+        } else {
+          document.getElementById('alert-assigned').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">${data.message}</div>`;
+        }
+      } catch {
+        document.getElementById('alert-assigned').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur réseau</div>`;
+      }
+    }
+
+    // تغيير الحالة إلى "Delivered"
+    async function markDelivered(orderId) {
+      const params = new URLSearchParams();
+      params.append('path', 'updateRequestStatus');
+      params.append('email', driverEmail);
+      params.append('token', driverToken);
+      params.append('requestId', orderId);
+      params.append('action', 'Delivered');
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: params.toString()
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("Commande livrée.");
+          loadAssigned();
+        } else {
+          document.getElementById('alert-assigned').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">${data.message}</div>`;
+        }
+      } catch {
+        document.getElementById('alert-assigned').innerHTML = `<div class="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded">Erreur réseau</div>`;
+      }
+    }
+
+    // تحميل البيانات عند فتح الصفحة
+    loadUnassigned();
+    loadAssigned();
+  </script>
 </body>
 </html>
