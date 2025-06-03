@@ -14,7 +14,6 @@
       height: 100vh;
       margin: 0;
     }
-
     .container {
       background: #fff;
       padding: 20px;
@@ -23,13 +22,11 @@
       width: 90%;
       max-width: 400px;
     }
-
     h2 {
       text-align: center;
       color: #333;
       margin-bottom: 20px;
     }
-
     input, select {
       width: 100%;
       padding: 12px;
@@ -37,8 +34,8 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
+      box-sizing: border-box;
     }
-
     button {
       background-color: #2980b9;
       color: white;
@@ -48,30 +45,26 @@
       font-size: 16px;
       border-radius: 8px;
       cursor: pointer;
+      margin-top: 8px;
     }
-
     button:hover {
       background-color: #1c5980;
     }
-
     .message {
       margin-top: 10px;
       text-align: center;
       font-size: 14px;
     }
-
     .login-link {
       text-align: center;
       margin-top: 16px;
       font-size: 14px;
     }
-
     .login-link a {
       color: #2980b9;
       text-decoration: none;
       font-weight: bold;
     }
-
     .login-link a:hover {
       text-decoration: underline;
     }
@@ -81,9 +74,8 @@
   <div class="container">
     <h2>Créer un compte</h2>
     <form id="registerForm">
-      <input type="text" name="name" placeholder="Nom complet" required />
       <input type="email" name="email" placeholder="Adresse e-mail" required />
-      <input type="password" name="password" placeholder="Mot de passe" required />
+      <input type="password" name="password" placeholder="Mot de passe (min. 6 caractères)" minlength="6" required />
       <select name="role" required>
         <option value="">-- Sélectionner un rôle --</option>
         <option value="client">Client</option>
@@ -98,36 +90,38 @@
   </div>
 
   <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
     const form = document.getElementById('registerForm');
-    const message = document.getElementById('message');
+    const messageEl = document.getElementById('message');
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      message.textContent = 'Chargement...';
-      message.style.color = 'black';
+      messageEl.textContent = 'Chargement...';
+      messageEl.style.color = 'black';
 
       const formData = new FormData(form);
-      formData.append('action', 'register');
+      formData.append('path', 'registerUser');
 
       try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec", {
+        const response = await fetch(API_URL, {
           method: 'POST',
           body: formData
         });
-
         const result = await response.json();
 
         if (result.success) {
-          message.textContent = "Inscription réussie ! Redirection...";
-          message.style.color = "green";
-          setTimeout(() => window.location.href = "login.html", 2000);
+          messageEl.textContent = "Inscription réussie ! Redirection vers la connexion...";
+          messageEl.style.color = "green";
+          setTimeout(() => {
+            window.location.href = "login.html";
+          }, 1500);
         } else {
-          message.textContent = result.message || "Erreur lors de l'inscription.";
-          message.style.color = "red";
+          messageEl.textContent = result.message || "Erreur lors de l'inscription.";
+          messageEl.style.color = "red";
         }
       } catch (error) {
-        message.textContent = "Erreur réseau, veuillez réessayer.";
-        message.style.color = "red";
+        messageEl.textContent = "Erreur réseau, veuillez réessayer.";
+        messageEl.style.color = "red";
       }
     });
   </script>
