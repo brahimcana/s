@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Modifier Profil Client</title>
+  <style>
+    body {
+      background-color: #f1f1f1;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      color: #333;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1c5980;
+    }
+    .message {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Modifier Profil</h2>
+    <form id="updateForm">
+      <input type="text" id="fullName" placeholder="Nom complet" required />
+      <input type="tel" id="phone" placeholder="Téléphone" required />
+      <input type="text" id="address" placeholder="Adresse" required />
+      <button type="submit">Enregistrer</button>
+      <div class="message" id="message"></div>
+    </form>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || "null");
+    if (!currentUser || currentUser.role !== 'client') {
+      window.location.href = 'login.html';
+    }
+
+    const form = document.getElementById('updateForm');
+    const messageEl = document.getElementById('message');
+
+    // في هذا المثال، نعبيء الحقول من localStorage (الاسم والهاتف مسجلان عند التسجيل الأولي)
+    document.getElementById('fullName').value = currentUser.name || "";
+    document.getElementById('phone').value = currentUser.phone || "";
+    document.getElementById('address').value = ""; // إذا كان محفوظًا ضمن حقل إضافي، قم بملئه هنا
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      messageEl.textContent = 'Chargement...';
+      messageEl.style.color = 'black';
+
+      const fullName = document.getElementById('fullName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+
+      const formData = new FormData();
+      formData.append('path', 'updateClientProfile');
+      formData.append('email', currentUser.email);
+      formData.append('token', currentUser.token);
+      formData.append('fullName', fullName);
+      formData.append('phone', phone);
+      formData.append('address', address);
+
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          messageEl.textContent = "Profil mis à jour.";
+          messageEl.style.color = "green";
+          // يمكنك تحديث localStorage إذا أردت:
+          currentUser.name = fullName;
+          currentUser.phone = phone;
+          localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        } else {
+          messageEl.textContent = data.message || "Erreur lors de la mise à jour.";
+          messageEl.style.color = "red";
+        }
+      } catch {
+        messageEl.textContent = "Erreur réseau";
+        messageEl.style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>
