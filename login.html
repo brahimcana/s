@@ -2,59 +2,143 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Connexion</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Connexion1</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; }
-    form { max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
-    input { width: 100%; padding: 10px; margin-top: 10px; }
-    button { margin-top: 20px; padding: 10px; width: 100%; background-color: #28a745; color: white; border: none; cursor: pointer; }
-    .error { color: red; margin-top: 10px; }
+    body {
+      background-color: #f1f1f1;
+      font-family: Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 400px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 12px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    button:hover {
+      background-color: #1c5980;
+    }
+
+    .message {
+      margin-top: 10px;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+
+    .register-link a {
+      color: #2980b9;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .register-link a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <form id="loginForm">
-    <h2>Connexion</h2>
-    <input type="email" id="email" placeholder="Adresse e-mail" required />
-    <input type="password" id="password" placeholder="Mot de passe" required />
-    <button type="submit">Se connecter</button>
-    <div class="error" id="error"></div>
-  </form>
+  <div class="container">
+    <h2>Se connecter</h2>
+    <form id="loginForm">
+      <input type="email" name="email" placeholder="Adresse e-mail" required />
+      <input type="password" name="password" placeholder="Mot de passe" required />
+      <button type="submit">Connexion</button>
+      <div class="message" id="message"></div>
+    </form>
+    <div class="register-link">
+      Pas de compte ? <a href="register.html">Inscrivez-vous</a>
+    </div>
+  </div>
 
   <script>
-    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
+    const form = document.getElementById('loginForm');
+    const messageEl = document.getElementById('message');
+
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
+      messageEl.textContent = 'Chargement...';
+      messageEl.style.color = 'black';
+
+      const formData = new FormData(form);
+      formData.append('path', 'loginUser');
 
       try {
-        const response = await google.script.run
-          .withSuccessHandler(function(result) {
-            if (result.success) {
-              localStorage.setItem("token", result.token);
-              localStorage.setItem("userId", result.userId);
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: formData
+        });
+        const result = await response.json();
 
-              if (result.role === "client") {
-                window.location.href = "dashboard-client.html";
-              } else if (result.role === "chauffeur") {
-                window.location.href = "dashboard-driver.html";
-              } else {
-                document.getElementById("error").innerText = "Rôle inconnu.";
-              }
+        if (result.success) {
+          // Stocker dans localStorage
+          const userObj = {
+            email: form.email.value.trim(),
+            role: result.role,
+            token: result.token
+          };
+          localStorage.setItem('currentUser', JSON.stringify(userObj));
+          messageEl.textContent = "Connexion réussie, redirection...";
+          messageEl.style.color = "green";
+
+          // Redirection selon rôle
+          setTimeout(() => {
+            if (result.role === 'client') {
+              window.location.href = 'dashboard-client.html';
             } else {
-              document.getElementById("error").innerText = result.message;
+              window.location.href = 'dashboard-driver.html';
             }
-          })
-          .withFailureHandler(function(err) {
-            document.getElementById("error").innerText = "Erreur lors de la connexion.";
-            console.error(err);
-          });
-
-        response.login(email, password);
-
+          }, 1000);
+        } else {
+          messageEl.textContent = result.message || "Erreur lors de la connexion.";
+          messageEl.style.color = "red";
+        }
       } catch (error) {
-        console.error("Erreur:", error);
-        document.getElementById("error").innerText = "Erreur inattendue.";
+        messageEl.textContent = "Erreur réseau, veuillez réessayer.";
+        messageEl.style.color = "red";
       }
     });
   </script>
