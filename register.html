@@ -15,17 +15,17 @@
       margin: 0;
     }
     .container {
-      background: #fff;
+      background: white;
       padding: 20px;
-      border-radius: 16px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
       width: 90%;
       max-width: 400px;
     }
     h2 {
       text-align: center;
+      margin-top: 0;
       color: #333;
-      margin-bottom: 20px;
     }
     input, select {
       width: 100%;
@@ -45,7 +45,6 @@
       font-size: 16px;
       border-radius: 8px;
       cursor: pointer;
-      margin-top: 8px;
     }
     button:hover {
       background-color: #1c5980;
@@ -74,9 +73,10 @@
   <div class="container">
     <h2>Créer un compte</h2>
     <form id="registerForm">
+      <input type="text" name="name" placeholder="Nom complet" required />
       <input type="email" name="email" placeholder="Adresse e-mail" required />
-      <input type="password" name="password" placeholder="Mot de passe (min. 6 caractères)" minlength="6" required />
-      <select name="role" required>
+      <input type="password" name="password" placeholder="Mot de passe" required />
+      <select name="role" id="role" required>
         <option value="">-- Sélectionner un rôle --</option>
         <option value="client">Client</option>
         <option value="driver">Chauffeur</option>
@@ -99,27 +99,42 @@
       messageEl.textContent = 'Chargement...';
       messageEl.style.color = 'black';
 
-      const formData = new FormData(form);
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      const password = form.password.value;
+      const role = form.role.value;
+
+      const formData = new FormData();
       formData.append('path', 'registerUser');
+      formData.append('name', name);
+      formData.append('email', email);
+      formData.append('password', password);
+      formData.append('role', role);
 
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: formData
-        });
-        const result = await response.json();
-
-        if (result.success) {
-          messageEl.textContent = "Inscription réussie ! Redirection vers la connexion...";
+        const res = await fetch(API_URL, { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.success) {
+          messageEl.textContent = "Inscription réussie. Veuillez compléter votre profil.";
           messageEl.style.color = "green";
+
+          // خزّن مؤقتًا البيانات لاستخدامها في صفحة إكمال الملف:
+          localStorage.setItem('temp_email', email);
+          localStorage.setItem('temp_password', password);
+          localStorage.setItem('temp_role', role);
+
           setTimeout(() => {
-            window.location.href = "login.html";
-          }, 1500);
+            if (role === 'client') {
+              window.location.href = 'profile-client.html';
+            } else {
+              window.location.href = 'profile-driver.html';
+            }
+          }, 1200);
         } else {
-          messageEl.textContent = result.message || "Erreur lors de l'inscription.";
+          messageEl.textContent = data.message || "Erreur lors de l'inscription.";
           messageEl.style.color = "red";
         }
-      } catch (error) {
+      } catch {
         messageEl.textContent = "Erreur réseau, veuillez réessayer.";
         messageEl.style.color = "red";
       }
