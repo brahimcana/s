@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscription – Coursier Prioritaire Toulouse</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- JS général -->
+  <script src="scripts.js" defer></script>
+  
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Barre de navigation -->
+  <nav class="bg-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold text-blue-600">Coursier Prioritaire</a>
+      <ul class="flex space-x-6">
+        <li><a href="index.html" class="text-gray-700 hover:text-blue-600">Accueil</a></li>
+        <li><a href="login.html" class="text-gray-700 hover:text-blue-600">Connexion</a></li>
+        <li><a href="register.html" class="text-blue-700 font-semibold">Inscription</a></li>
+        <li><button id="btn-logout" class="hidden text-red-500 hover:text-red-700">Déconnexion</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Formulaire d’inscription (étape 1) -->
+  <main class="flex-1 flex items-center justify-center">
+    <div class="w-full max-w-md bg-white shadow-lg rounded-lg overflow-hidden">
+      <div class="p-6">
+        <h2 class="text-2xl font-semibold text-center mb-4">Créer un compte</h2>
+        <div id="alert-container" class="mb-4"></div>
+
+        <form id="register-form" class="space-y-5">
+          <div>
+            <label for="reg-email" class="block text-sm font-medium text-gray-700">Adresse e-mail</label>
+            <input
+              type="email"
+              id="reg-email"
+              placeholder="exemple@mail.com"
+              required
+              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label for="reg-password" class="block text-sm font-medium text-gray-700">Mot de passe</label>
+            <input
+              type="password"
+              id="reg-password"
+              placeholder="••••••••"
+              required
+              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label for="reg-role" class="block text-sm font-medium text-gray-700">Je suis :</label>
+            <select
+              id="reg-role"
+              required
+              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              <option value="">Choisissez...</option>
+              <option value="client">Client</option>
+              <option value="driver">Livreur</option>
+            </select>
+          </div>
+          <button
+            type="submit"
+            id="btn-register-submit"
+            class="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition disabled:opacity-50"
+          >
+            Suivant
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pied de page -->
+  <footer class="bg-gray-100 text-center py-4 text-gray-500 text-sm">
+    &copy; 2025 Coursier Prioritaire Toulouse
+  </footer>
+
+  <!-- Script pour basculer vers la page de profil selon le rôle -->
+  <script>
+    document.getElementById("register-form").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const email = document.getElementById("reg-email").value.trim();
+      const password = document.getElementById("reg-password").value.trim();
+      const role = document.getElementById("reg-role").value;
+
+      if (!email || !password || !role) {
+        showAlert("error", "Tous les champs sont requis.", "alert-container");
+        return;
+      }
+      // Sauvegarde temporaire dans localStorage
+      localStorage.setItem("temp_email", email);
+      localStorage.setItem("temp_password", password);
+      localStorage.setItem("temp_role", role);
+
+      // Redirection selon le rôle
+      if (role === "client") {
+        window.location.href = "profile-client.html";
+      } else {
+        window.location.href = "profile-driver.html";
+      }
+    });
+  </script>
+</body>
+</html>
