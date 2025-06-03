@@ -2,12 +2,12 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Inscription</title>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #f9f9f9;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
       margin: 0;
       padding: 0;
       display: flex;
@@ -18,24 +18,24 @@
 
     .container {
       background: white;
-      padding: 20px 30px;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      padding: 25px 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       width: 90%;
       max-width: 400px;
     }
 
     h2 {
       text-align: center;
-      color: #333;
       margin-bottom: 20px;
+      color: #2c3e50;
     }
 
     label {
       display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #555;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #34495e;
     }
 
     input[type="text"],
@@ -43,58 +43,75 @@
     input[type="password"],
     select {
       width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      padding: 12px 10px;
+      margin-bottom: 16px;
+      border: 1.5px solid #ccc;
+      border-radius: 8px;
       font-size: 16px;
-      box-sizing: border-box;
+      transition: border-color 0.3s ease;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="password"]:focus,
+    select:focus {
+      outline: none;
+      border-color: #2980b9;
     }
 
     button {
       width: 100%;
-      padding: 12px;
-      background-color: #007bff;
+      padding: 14px;
+      background-color: #2980b9;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       color: white;
       font-size: 18px;
+      font-weight: 700;
       cursor: pointer;
       transition: background-color 0.3s ease;
     }
 
     button:hover {
-      background-color: #0056b3;
+      background-color: #1c5980;
     }
 
-    .error {
+    .message {
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
       color: red;
-      margin-bottom: 10px;
-      text-align: center;
     }
 
-    .success {
-      color: green;
-      margin-bottom: 10px;
+    .login-link {
+      margin-top: 20px;
       text-align: center;
+      font-size: 14px;
+    }
+
+    .login-link a {
+      color: #2980b9;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>Inscription</h2>
-
-    <div id="message"></div>
-
+    <h2>Créer un compte</h2>
     <form id="registerForm">
       <label for="name">Nom complet</label>
       <input type="text" id="name" name="name" placeholder="Votre nom complet" required />
 
       <label for="email">Email</label>
-      <input type="email" id="email" name="email" placeholder="Votre email" required />
+      <input type="email" id="email" name="email" placeholder="exemple@mail.com" required />
 
       <label for="password">Mot de passe</label>
-      <input type="password" id="password" name="password" placeholder="Mot de passe" required />
+      <input type="password" id="password" name="password" placeholder="Mot de passe" minlength="6" required />
 
       <label for="role">Rôle</label>
       <select id="role" name="role" required>
@@ -104,34 +121,36 @@
       </select>
 
       <button type="submit">S'inscrire</button>
+      <div class="message" id="message"></div>
     </form>
+    <div class="login-link">
+      <span>Déjà un compte ? <a href="login.html">Connectez-vous</a></span>
+    </div>
   </div>
 
   <script>
-    const registerForm = document.getElementById('registerForm');
-    const messageDiv = document.getElementById('message');
+    const form = document.getElementById('registerForm');
+    const messageEl = document.getElementById('message');
 
-    registerForm.addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      messageEl.textContent = '';
 
-      // Clear previous messages
-      messageDiv.textContent = '';
-      messageDiv.className = '';
-
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      const role = document.getElementById('role').value;
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      const password = form.password.value;
+      const role = form.role.value;
 
       if (!name || !email || !password || !role) {
-        messageDiv.textContent = "Veuillez remplir tous les champs.";
-        messageDiv.className = "error";
+        messageEl.textContent = 'Veuillez remplir tous les champs.';
         return;
       }
 
+      // You can add more client-side validation here if needed
+
       try {
-        // Appeler l'API Google Apps Script (ajuster l'URL à la vôtre)
-        const response = await fetch('https://script.google.com/macros/s/TON_SCRIPT_ID/exec', {
+        // Appel à la fonction Google Apps Script pour inscription
+        const response = await fetch('https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -148,20 +167,19 @@
         const result = await response.json();
 
         if (result.success) {
-          messageDiv.textContent = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
-          messageDiv.className = "success";
-
-          // Optionnel: rediriger vers la page login après 2 secondes
+          messageEl.style.color = 'green';
+          messageEl.textContent = 'Inscription réussie ! Redirection...';
+          // Rediriger vers login après 2 ثوان
           setTimeout(() => {
             window.location.href = 'login.html';
           }, 2000);
         } else {
-          messageDiv.textContent = result.message || "Erreur lors de l'inscription.";
-          messageDiv.className = "error";
+          messageEl.style.color = 'red';
+          messageEl.textContent = result.message || 'Erreur lors de l\'inscription.';
         }
       } catch (error) {
-        messageDiv.textContent = "Erreur réseau ou serveur.";
-        messageDiv.className = "error";
+        messageEl.style.color = 'red';
+        messageEl.textContent = 'Erreur réseau, veuillez réessayer.';
       }
     });
   </script>
