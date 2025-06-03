@@ -2,87 +2,143 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Profil Client – Coursier Prioritaire Toulouse</title>
-
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- JS général -->
-  <script src="scripts.js" defer></script>
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mon profil – Client</title>
   <style>
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; }
+    body {
+      background-color: #f9f9f9;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    .container {
+      max-width: 400px;
+      margin: auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      color: #2c3e50;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #219150;
+    }
+    .message {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+    a {
+      display: block;
+      margin-top: 15px;
+      text-align: center;
+      color: #2980b9;
+      text-decoration: none;
+    }
   </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
+  <div class="container">
+    <h2>Mon profil</h2>
+    <form id="profileForm">
+      <label for="fullName">Nom complet</label>
+      <input type="text" id="fullName" required />
 
-  <!-- Barre de navigation -->
-  <nav class="bg-white shadow-md">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="index.html" class="text-2xl font-bold text-blue-600">Coursier Prioritaire</a>
-      <ul class="flex space-x-6">
-        <li><a href="index.html" class="text-gray-700 hover:text-blue-600">Accueil</a></li>
-        <li><a href="login.html" id="nav-login" class="text-gray-700 hover:text-blue-600 hidden">Connexion</a></li>
-        <li><a href="register.html" id="nav-register" class="text-gray-700 hover:text-blue-600 hidden">Inscription</a></li>
-        <li><a href="dashboard-client.html" id="nav-dashboard-client" class="hidden text-gray-700 hover:text-blue-600">Tableau de bord</a></li>
-        <li><button id="btn-logout" class="hidden text-red-500 hover:text-red-700">Déconnexion</button></li>
-      </ul>
-    </div>
-  </nav>
+      <label for="address">Adresse</label>
+      <input type="text" id="address" required />
 
-  <!-- Formulaire de profil client -->
-  <main class="flex-1 flex items-center justify-center">
-    <div class="w-full max-w-md bg-white shadow-lg rounded-lg overflow-hidden">
-      <div class="p-6">
-        <h2 class="text-2xl font-semibold text-center mb-4">Compléter votre profil (Client)</h2>
-        <div id="alert-container" class="mb-4"></div>
+      <label for="phone">Téléphone</label>
+      <input type="text" id="phone" required />
 
-        <form id="profile-client-form" class="space-y-5">
-          <div>
-            <label for="client-name" class="block text-sm font-medium text-gray-700">Nom complet</label>
-            <input
-              type="text"
-              id="client-name"
-              placeholder="Ex : Jean Dupont"
-              required
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label for="client-phone" class="block text-sm font-medium text-gray-700">Téléphone</label>
-            <input
-              type="tel"
-              id="client-phone"
-              placeholder="06 12 34 56 78"
-              required
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label for="client-address" class="block text-sm font-medium text-gray-700">Adresse</label>
-            <input
-              type="text"
-              id="client-address"
-              placeholder="Ex : 10 Rue de la République, Toulouse"
-              required
-              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <button
-            type="submit"
-            id="btn-profile-client-submit"
-            class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-50"
-          >
-            Valider le profil
-          </button>
-        </form>
-      </div>
-    </div>
-  </main>
+      <button type="submit">Mettre à jour</button>
+    </form>
+    <div class="message" id="message"></div>
+    <a href="dashboard-client.html">← Retour au tableau de bord</a>
+  </div>
 
-  <!-- Pied de page -->
-  <footer class="bg-gray-100 text-center py-4 text-gray-500 text-sm">
-    &copy; 2025 Coursier Prioritaire Toulouse
-  </footer>
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+
+    if (!currentUser || currentUser.role !== 'client') {
+      window.location.href = "login.html";
+    }
+
+    const email = currentUser.email;
+    const token = currentUser.token;
+    const form = document.getElementById("profileForm");
+    const message = document.getElementById("message");
+
+    async function loadProfile() {
+      const formData = new FormData();
+      formData.append("path", "getUserByEmail");
+      formData.append("email", email);
+      formData.append("token", token);
+
+      try {
+        const res = await fetch(API_URL, { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById("fullName").value = data.user.fullName || "";
+          document.getElementById("address").value = data.user.address || "";
+          document.getElementById("phone").value = data.user.phone || "";
+        } else {
+          message.innerHTML = `<span style="color:red;">${data.message}</span>`;
+        }
+      } catch (err) {
+        message.innerHTML = `<span style="color:red;">Erreur de chargement du profil</span>`;
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append("path", "updateProfile");
+      formData.append("email", email);
+      formData.append("token", token);
+      formData.append("fullName", document.getElementById("fullName").value.trim());
+      formData.append("address", document.getElementById("address").value.trim());
+      formData.append("phone", document.getElementById("phone").value.trim());
+
+      try {
+        const res = await fetch(API_URL, { method: "POST", body: formData });
+        const data = await res.json();
+        if (data.success) {
+          message.innerHTML = `<span style="color:green;">Profil mis à jour</span>`;
+        } else {
+          message.innerHTML = `<span style="color:red;">${data.message}</span>`;
+        }
+      } catch (err) {
+        message.innerHTML = `<span style="color:red;">Erreur lors de la mise à jour</span>`;
+      }
+    });
+
+    loadProfile();
+  </script>
 </body>
 </html>
