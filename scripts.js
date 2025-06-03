@@ -1,57 +1,71 @@
 // scripts.js
 
-// 1. ثابت الـ Web App (Apps Script URL)
-const API_BASE_URL = "https://script.google.com/macros/s/AKfycbzKTpDZZXhf5PF-XFI_jsfyv6SE8QWfG2sDAhWmeF9r8NL4IX6XuLhzi7R0Cioa6ihl/exec";
+// ----------------------------------------------
+// 1. الثوابت الرئيسة
+// ----------------------------------------------
 
-// 2. مفتاح Stripe العام (ضع مفتاحك من لوحة Stripe)
+// رابط Google Apps Script (الـ Web App) الذي نشرته
+const API_BASE_URL =
+  "https://script.google.com/macros/s/AKfycbzKTpDZZXhf5PF-XFI_jsfyv6SE8QWfG2sDAhWmeF9r8NL4IX6XuLhzi7R0Cioa6ihl/exec";
+
+// مفتاح Stripe العام (يمكنك استبداله بمفتاحك الخاص من لوحة Stripe)
 const STRIPE_PUBLIC_KEY = "pk_test_XXXXXXXXXXXXXX";
 
-// 3. Google Maps API Key
+// مفتاح Google Maps API (Geocoding)
 const GOOGLE_MAPS_API_KEY = "AIzaSy…XXXXXXXXXX";
 
-// 4. مفتاح التخزين في localStorage
+// مفتاح التخزين في localStorage لحفظ بيانات المستخدم
 const STORAGE_KEY_USER = "urgentgo_user";
 
-// 5. دوال التخزين محليًا
+// ----------------------------------------------
+// 2. دوال التخزين محليًا (localStorage)
+// ----------------------------------------------
 function saveUserToLocal(userObj) {
   localStorage.setItem(STORAGE_KEY_USER, JSON.stringify(userObj));
 }
+
 function getUserFromLocal() {
   const raw = localStorage.getItem(STORAGE_KEY_USER);
   return raw ? JSON.parse(raw) : null;
 }
+
 function logout() {
   localStorage.removeItem(STORAGE_KEY_USER);
   window.location.href = "index.html";
 }
 
-// 6. دالة عرض رسائل الحالة
+// ----------------------------------------------
+// 3. دالة عرض رسائل الحالة (Alert)
+// ----------------------------------------------
 function showAlert(type, message, containerId) {
   const container = document.getElementById(containerId);
   container.innerHTML = `
     <div class="alert ${type === "success" ? "alert-success" : "alert-error"}">
       ${message}
-    </div>`;
-  setTimeout(() => (container.innerHTML = ""), 3000);
+    </div>
+  `;
+  setTimeout(() => {
+    container.innerHTML = "";
+  }, 3000);
 }
 
-// 7. دوال التواصل مع API (Apps Script)
+// ----------------------------------------------
+// 4. دوال التواصل مع Google Apps Script API
+// ----------------------------------------------
+
+// POST إلى Google Apps Script
 async function postToApi(path, body) {
   try {
-    const response = await fetch(`${API_BASE_URL}?path=${path}`, {
+    const response = await fetch(`${API_BASE_URL}?path=${encodeURIComponent(path)}`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json"
+      },
       body: JSON.stringify(body)
     });
-    return await response.json();
-  } catch (err) {
-    console.error("API Error:", err);
-    throw err;
-  }
-}
-async function getFromApi(path) {
-  try {
-    const response = await fetch(`${API_BASE_URL}?path=${path}`);
+    if (!response.ok) {
+      throw new Error("فشل الاتصال بالـ API.");
+    }
     return await response.json();
   } catch (err) {
     console.error("API Error:", err);
@@ -59,7 +73,23 @@ async function getFromApi(path) {
   }
 }
 
-// 8. دالة لحساب التكلفة وعرضها فور اختيار “نوع الطلب” أو “عاجل”
+// GET من Google Apps Script
+async function getFromApi(path) {
+  try {
+    const response = await fetch(`${API_BASE_URL}?path=${encodeURIComponent(path)}`);
+    if (!response.ok) {
+      throw new Error("فشل الاتصال بالـ API.");
+    }
+    return await response.json();
+  } catch (err) {
+    console.error("API Error:", err);
+    throw err;
+  }
+}
+
+// ----------------------------------------------
+// 5. حساب التكلفة فور تغيير نوع الطلب أو خانة "عاجل"
+// ----------------------------------------------
 async function updateFeeDisplay() {
   const type = document.getElementById("req-type").value;
   const urgent = document.getElementById("req-urgent").checked;
@@ -73,7 +103,9 @@ async function updateFeeDisplay() {
   }
 }
 
-// 9. تحويل عنوان نصي إلى إحداثيات (Geocoding)
+// ----------------------------------------------
+// 6. Geocoding: تحويل عنوان نصي إلى إحداثيات
+// ----------------------------------------------
 async function geocode(address) {
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
     address
@@ -86,11 +118,13 @@ async function geocode(address) {
       lng: data.results[0].geometry.location.lng
     };
   } else {
-    throw new Error("Geocoding failed.");
+    throw new Error("فشل في تحويل العنوان إلى إحداثيات.");
   }
 }
 
-// 10. تحديد موقع الالتقاط عبر GPS
+// ----------------------------------------------
+// 7. استخدام GPS لوضع عنوان الالتقاط تلقائيًا
+// ----------------------------------------------
 function setPickupFromGPS() {
   if (!navigator.geolocation) {
     return showAlert("error", "المتصفح لا يدعم تحديد الموقع.", "alert-container");
@@ -119,58 +153,82 @@ function setPickupFromGPS() {
 }
 
 // ----------------------------------------------
-// 11. تسجيل الدخول/التسجيل (index.html)
+// 8. تسجيل الدخول / إنشاء حساب (index.html)
 // ----------------------------------------------
 async function handleLogin(e) {
   e.preventDefault();
-  const phone = document.getElementById("login-phone").value.trim();
-  if (!phone) return showAlert("error", "رجاءً أدخل رقم الهاتف.", "alert-container");
+  const phoneInput = document.getElementById("login-phone");
+  const phone = phoneInput.value.trim();
+  if (!phone) {
+    return showAlert("error", "رجاءً أدخل رقم الهاتف.", "alert-container");
+  }
+  const btn = document.getElementById("btn-login-submit");
+  btn.disabled = true;
+  btn.textContent = "جارٍ التحقق...";
   try {
     const user = await postToApi("getUserByPhone", { phone });
     if (user && user.id) {
       saveUserToLocal(user);
-      showAlert("success", "تمّ تسجيل الدخول.", "alert-container");
+      showAlert("success", "تمّ تسجيل الدخول بنجاح.", "alert-container");
       setTimeout(() => {
         if (user.role === "client") window.location.href = "client.html";
         else window.location.href = "courier.html";
       }, 800);
     } else {
-      showAlert("error", "هذا الرقم غير مسجل. أنشئ حسابًا جديدًا.", "alert-container");
+      showAlert("error", "هذا الرقم غير مسجل. يمكنك إنشاء حساب جديد.", "alert-container");
+      btn.disabled = false;
+      btn.textContent = "تسجيل الدخول";
     }
   } catch {
-    showAlert("error", "خطأ في الاتصال.", "alert-container");
+    showAlert("error", "خطأ في الاتصال. حاول مجددًا.", "alert-container");
+    btn.disabled = false;
+    btn.textContent = "تسجيل الدخول";
   }
 }
 
 async function handleRegister(e) {
   e.preventDefault();
-  const name = document.getElementById("reg-name").value.trim();
-  const phone = document.getElementById("reg-phone").value.trim();
-  const email = document.getElementById("reg-email").value.trim();
-  const role = document.getElementById("reg-role").value;
+  const nameInput = document.getElementById("reg-name");
+  const phoneInput = document.getElementById("reg-phone");
+  const emailInput = document.getElementById("reg-email");
+  const roleSelect = document.getElementById("reg-role");
+
+  const name = nameInput.value.trim();
+  const phone = phoneInput.value.trim();
+  const email = emailInput.value.trim();
+  const role = roleSelect.value;
+
   if (!name || !phone) {
     return showAlert("error", "الاسم ورقم الهاتف مطلوبان.", "alert-container");
   }
+
+  const btn = document.getElementById("btn-register-submit");
+  btn.disabled = true;
+  btn.textContent = "جارٍ الإنشاء...";
   try {
     const res = await postToApi("createUser", { name, phone, email, role });
     if (res.id) {
       const newUser = { id: res.id, name, phone, email, role };
       saveUserToLocal(newUser);
-      showAlert("success", "تمّ إنشاء الحساب.", "alert-container");
+      showAlert("success", "تمّ إنشاء الحساب بنجاح.", "alert-container");
       setTimeout(() => {
         if (role === "client") window.location.href = "client.html";
         else window.location.href = "courier.html";
       }, 800);
     } else {
-      showAlert("error", "فشل في إنشاء الحساب.", "alert-container");
+      showAlert("error", "فشل في إنشاء الحساب. حاول لاحقًا.", "alert-container");
+      btn.disabled = false;
+      btn.textContent = "إنشاء الحساب";
     }
   } catch {
-    showAlert("error", "خطأ في الاتصال.", "alert-container");
+    showAlert("error", "خطأ في الاتصال. حاول مجددًا.", "alert-container");
+    btn.disabled = false;
+    btn.textContent = "إنشاء الحساب";
   }
 }
 
 // ----------------------------------------------
-// 12. إنشاء الطلب وربطه بـ Stripe (client.html)
+// 9. إنشاء الطلب مع دمج Stripe (client.html)
 // ----------------------------------------------
 async function createRequestHandler(e) {
   e.preventDefault();
@@ -179,16 +237,17 @@ async function createRequestHandler(e) {
   const pickupAddress = document.getElementById("req-pickup").value.trim();
   const deliveryAddress = document.getElementById("req-delivery").value.trim();
   const urgent = document.getElementById("req-urgent").checked;
+
   if (!description || !pickupAddress || !deliveryAddress) {
     return showAlert("error", "يرجى ملء جميع الحقول.", "alert-container");
   }
 
-  // 12.1 حساب التكلفة
+  // 9.1 حساب التكلفة
   const feeRes = await postToApi("calculateFee", { type, urgent });
   const fee = feeRes.fee;
   if (fee === null) return;
 
-  // 12.2 إنشاء PaymentIntent
+  // 9.2 إنشاء PaymentIntent من Backend
   let pi;
   try {
     pi = await postToApi("createPaymentIntent", {
@@ -197,14 +256,14 @@ async function createRequestHandler(e) {
       clientId: currentUser.id
     });
   } catch {
-    return showAlert("error", "فشل في إنشاء PaymentIntent.", "alert-container");
+    return showAlert("error", "فشل في إنشاء الطلبية للدفع.", "alert-container");
   }
 
-  // 12.3 إعداد Stripe.js
+  // 9.3 إعداد Stripe.js
   const stripe = Stripe(STRIPE_PUBLIC_KEY);
   const { clientSecret } = pi;
 
-  // 12.4 تأكيد الدفع ببطاقة المستخدم
+  // 9.4 تأكيد الدفع عبر Stripe Elements
   const { error } = await stripe.confirmCardPayment(clientSecret, {
     payment_method: {
       card: cardElement,
@@ -214,11 +273,12 @@ async function createRequestHandler(e) {
       }
     }
   });
+
   if (error) {
     return showAlert("error", `فشل الدفع: ${error.message}`, "alert-container");
   }
 
-  // 12.5 بعد نجاح الدفع، ننشئ الطلب في Google Sheets
+  // 9.5 بعد تأكيد الدفع، ننشئ الطلب في Google Sheets
   try {
     const pu = await geocode(pickupAddress);
     const du = await geocode(deliveryAddress);
@@ -251,7 +311,7 @@ async function createRequestHandler(e) {
 }
 
 // ----------------------------------------------
-// 13. جلب وعرض طلبات العميل (client.html)
+// 10. جلب وعرض طلبات العميل (client.html)
 // ----------------------------------------------
 async function loadClientRequests() {
   const clientReqs = await postToApi("getRequestsByClientId", { clientId: currentUser.id });
@@ -272,7 +332,7 @@ async function loadClientRequests() {
 }
 
 // ----------------------------------------------
-// 14. إدارة طلبات الساعي (courier.html)
+// 11. إدارة طلبات الساعي (courier.html)
 // ----------------------------------------------
 async function loadUnassignedRequests() {
   const reqs = await getFromApi("listUnassignedRequests");
