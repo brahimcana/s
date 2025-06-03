@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Détails de la commande</title>
+  <style>
+    body {
+      background-color: #f1f1f1;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .container {
+      background: white;
+      margin: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 400px;
+    }
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      color: #333;
+    }
+    .field {
+      margin-bottom: 12px;
+    }
+    .label {
+      font-weight: 600;
+      color: #555;
+    }
+    .value {
+      margin-top: 4px;
+      color: #111;
+    }
+    .message {
+      text-align: center;
+      color: red;
+      font-size: 14px;
+    }
+    a {
+      color: #2980b9;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Détails de la commande</h2>
+    <div id="details">Chargement...</div>
+    <div style="text-align:center; margin-top:15px;">
+      <a href="dashboard-client.html">← Retour</a>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
+    const detailsEl = document.getElementById('details');
+    const currentUser = JSON.parse(localStorage.getItem('currentUser') || "null");
+    if (!currentUser || currentUser.role !== 'client') {
+      window.location.href = 'login.html';
+    }
+
+    // استخرج orderId من query string
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get('orderId');
+    if (!orderId) {
+      detailsEl.innerHTML = `<div class="message">ID de commande manquant.</div>`;
+    } else {
+      (async () => {
+        const formData = new FormData();
+        formData.append('path', 'getRequestById');
+        formData.append('email', currentUser.email);
+        formData.append('token', currentUser.token);
+        formData.append('requestId', orderId);
+
+        try {
+          const res = await fetch(API_URL, { method: 'POST', body: formData });
+          const data = await res.json();
+          if (data.success) {
+            const o = data.order;
+            detailsEl.innerHTML = `
+              <div class="field"><div class="label">ID :</div><div class="value">${o.id}</div></div>
+              <div class="field"><div class="label">Type :</div><div class="value">${o.type}</div></div>
+              <div class="field"><div class="label">Statut :</div><div class="value">${o.status}</div></div>
+              <div class="field"><div class="label">Créé le :</div><div class="value">${new Date(o.createdAt).toLocaleString()}</div></div>
+              <div class="field"><div class="label">Adresse départ :</div><div class="value">${o.pickupAddress}</div></div>
+              <div class="field"><div class="label">Adresse livraison :</div><div class="value">${o.deliveryAddress}</div></div>
+              <div class="field"><div class="label">Tarif (€) :</div><div class="value">${o.fee}</div></div>
+              <div class="field"><div class="label">Paiement :</div><div class="value">${o.paymentStatus}</div></div>
+              ${ o.courierEmail 
+                 ? `<div class="field"><div class="label">Livreur :</div><div class="value">${o.courierEmail}</div></div>`
+                 : ``
+              }
+              <div style="margin-top:15px; text-align:center;">
+                <a href="https://www.google.com/maps/dir/${o.latitudePU},${o.longitudePU}/${o.latitudeDO},${o.longitudeDO}" target="_blank">
+                  Voir l'itinéraire
+                </a>
+              </div>
+            `;
+          } else {
+            detailsEl.innerHTML = `<div class="message">${data.message}</div>`;
+          }
+        } catch {
+          detailsEl.innerHTML = `<div class="message">Erreur réseau</div>`;
+        }
+      })();
+    }
+  </script>
+</body>
+</html>
