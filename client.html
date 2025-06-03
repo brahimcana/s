@@ -1,0 +1,121 @@
+<!-- client.html -->
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>عميل - Coursier Prioritaire</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- مكتبة Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="scripts.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>مرحبًا، <span id="client-name"></span></h1>
+      <button onclick="logout()" class="btn-small" style="background:#c0392b;">تسجيل الخروج</button>
+      <hr />
+      <h2>إنشاء طلب جديد</h2>
+    </header>
+
+    <div id="alert-container"></div>
+
+    <form id="new-request-form">
+      <label for="req-type">نوع الطلب:</label>
+      <select id="req-type" required>
+        <option value="document">وثيقة/ملف</option>
+        <option value="purchase">شراء + توصيل</option>
+        <option value="medicine">وصفة دوائية</option>
+        <option value="errand">مهمة عاجلة</option>
+      </select>
+
+      <label for="req-desc">وصف الطلب:</label>
+      <textarea id="req-desc" rows="2" placeholder="مثال: استلام دفاتر من المكتبة وتوصيلها للبيت" required></textarea>
+
+      <label for="req-pickup">عنوان الاستلام:</label>
+      <input type="text" id="req-pickup" placeholder="مثال: Fnac Capitole" required />
+      <button type="button" id="btn-pick-loc" class="btn-small" style="width:auto;">استخدام موقعي</button>
+
+      <label for="req-delivery">عنوان التسليم:</label>
+      <input type="text" id="req-delivery" placeholder="مثال: 10 Boulevard Jean Jaurès" required />
+
+      <label>
+        <input type="checkbox" id="req-urgent" />
+        عاجل (< 30 دقيقة) (+10€)
+      </label>
+
+      <div id="fee-display" style="margin:10px 0; font-weight:bold;"></div>
+
+      <label>بيانات البطاقة:</label>
+      <div id="card-element" style="padding:10px; border:1px solid #ddd; border-radius:4px;"></div>
+      <div id="card-errors" role="alert" style="color:red; margin-top:5px;"></div>
+
+      <button type="submit" class="btn">ادفع وأنشئ الطلب</button>
+    </form>
+
+    <hr />
+
+    <h2>طلباتي</h2>
+    <table id="requests-table">
+      <thead>
+        <tr>
+          <th>رقم</th>
+          <th>النوع</th>
+          <th>الوصف</th>
+          <th>الحالة</th>
+          <th>الرسوم</th>
+          <th>الدفع</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <footer>
+    &copy; 2025 Coursier Prioritaire Toulouse
+  </footer>
+
+  <script>
+    let currentUser, cardElement;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      // استرجاع المستخدم
+      currentUser = getUserFromLocal();
+      if (!currentUser || currentUser.role !== "client") {
+        return (window.location.href = "index.html");
+      }
+      document.getElementById("client-name").textContent = currentUser.name;
+
+      // تهيئة Stripe
+      const stripe = Stripe(STRIPE_PUBLIC_KEY);
+      const elements = stripe.elements();
+      cardElement = elements.create("card", {
+        style: { base: { fontSize: "16px", color: "#32325d" } }
+      });
+      cardElement.mount("#card-element");
+      cardElement.on("change", (event) => {
+        const displayError = document.getElementById("card-errors");
+        displayError.textContent = event.error ? event.error.message : "";
+      });
+
+      // ربط الأحداث
+      document
+        .getElementById("req-type")
+        .addEventListener("change", updateFeeDisplay);
+      document
+        .getElementById("req-urgent")
+        .addEventListener("change", updateFeeDisplay);
+      document
+        .getElementById("btn-pick-loc")
+        .addEventListener("click", setPickupFromGPS);
+      document
+        .getElementById("new-request-form")
+        .addEventListener("submit", createRequestHandler);
+
+      // تحميل طلبات العميل
+      loadClientRequests();
+    });
+  </script>
+</body>
+</html>

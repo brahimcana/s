@@ -1,0 +1,163 @@
+<!-- courier.html -->
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ساعي - Coursier Prioritaire</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="scripts.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>مرحبًا، <span id="courier-name"></span></h1>
+      <button onclick="logout()" class="btn-small" style="background:#c0392b;">تسجيل الخروج</button>
+      <hr />
+      <h2>الطلبات المتاحة (مدفوعة فقط)</h2>
+    </header>
+
+    <div id="alert-container"></div>
+
+    <table id="unassigned-requests-table">
+      <thead>
+        <tr>
+          <th>رقم</th>
+          <th>النوع</th>
+          <th>الوصف</th>
+          <th>موقع الالتقاط</th>
+          <th>موقع التسليم</th>
+          <th>السعر</th>
+          <th>إجراء</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <hr />
+    <h2>طلباتي الجارية</h2>
+    <table id="my-requests-table">
+      <thead>
+        <tr>
+          <th>رقم</th>
+          <th>النوع</th>
+          <th>الوصف</th>
+          <th>الحالة</th>
+          <th>إجراءات</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <footer>
+    &copy; 2025 Coursier Prioritaire Toulouse
+  </footer>
+
+  <script>
+    let currentUser;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      currentUser = getUserFromLocal();
+      if (!currentUser || currentUser.role !== "courier") {
+        return (window.location.href = "index.html");
+      }
+      document.getElementById("courier-name").textContent = currentUser.name;
+      loadUnassignedRequests();
+      loadMyRequests();
+    });
+
+    async function loadUnassignedRequests() {
+      const reqs = await getFromApi("listUnassignedRequests");
+      const tbody = document.querySelector("#unassigned-requests-table tbody");
+      tbody.innerHTML = "";
+      reqs.forEach((req) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${req.requestId}</td>
+          <td>${req.type}</td>
+          <td>${req.description}</td>
+          <td>${req.pickupAddress}</td>
+          <td>${req.deliveryAddress}</td>
+          <td>${req.fee}€</td>
+          <td><button class="btn-small" onclick="acceptRequest(${req.requestId})">قبول</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function acceptRequest(requestId) {
+      try {
+        const res = await postToApi("assignCourier", {
+          requestId,
+          courierId: currentUser.id
+        });
+        if (res.success) {
+          showAlert("success", `تمّ قبول الطلب رقم ${requestId}`, "alert-container");
+          setTimeout(() => {
+            loadUnassignedRequests();
+            loadMyRequests();
+          }, 500);
+        } else {
+          showAlert("error", res.error || "فشل في قبول الطلب.", "alert-container");
+        }
+      } catch {
+        showAlert("error", "خطأ في الاتصال.", "alert-container");
+      }
+    }
+
+    async function loadMyRequests() {
+      const myReqs = await postToApi("getRequestsByCourierId", { courierId: currentUser.id });
+      const tbody = document.querySelector("#my-requests-table tbody");
+      tbody.innerHTML = "";
+      myReqs.forEach((req) => {
+        let actionButtons = "";
+        if (req.status === "pending") {
+          actionButtons = `<button class="btn-small" onclick="markPicked(${req.requestId})">استلام</button>`;
+        } else if (req.status === "picked") {
+          actionButtons = `<button class="btn-small" onclick="markDelivered(${req.requestId})">توصيل</button>`;
+        } else if (req.status === "delivered") {
+          actionButtons = `<span>تمّ التسليم</span>`;
+        }
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${req.requestId}</td>
+          <td>${req.type}</td>
+          <td>${req.description}</td>
+          <td>${req.status}</td>
+          <td>${actionButtons}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function markPicked(requestId) {
+      try {
+        const res = await postToApi("updateRequestStatus", { requestId, action: "picked" });
+        if (res.success) {
+          showAlert("success", `تمّ استلام الطلب رقم ${requestId}`, "alert-container");
+          setTimeout(loadMyRequests, 500);
+        } else {
+          showAlert("error", res.error || "خطأ في التحديث.", "alert-container");
+        }
+      } catch {
+        showAlert("error", "خطأ في الاتصال.", "alert-container");
+      }
+    }
+
+    async function markDelivered(requestId) {
+      try {
+        const res = await postToApi("updateRequestStatus", { requestId, action: "delivered" });
+        if (res.success) {
+          showAlert("success", `تمّ توصيل الطلب رقم ${requestId}`, "alert-container");
+          setTimeout(loadMyRequests, 500);
+        } else {
+          showAlert("error", res.error || "خطأ في التحديث.", "alert-container");
+        }
+      } catch {
+        showAlert("error", "خطأ في الاتصال.", "alert-container");
+      }
+    }
+  </script>
+</body>
+</html>
