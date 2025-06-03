@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tableau de bord Client – Coursier Prioritaire Toulouse</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- JS général -->
+  <script src="scripts.js" defer></script>
+  
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Barre de navigation -->
+  <nav class="bg-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold text-blue-600">Coursier Prioritaire</a>
+      <ul class="flex space-x-6">
+        <li><a href="index.html" class="text-gray-700 hover:text-blue-600">Accueil</a></li>
+        <li><a href="dashboard-client.html" class="text-blue-700 font-semibold">Tableau de bord</a></li>
+        <li><button id="btn-logout" class="text-red-500 hover:text-red-700">Déconnexion</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Contenu du dashboard client -->
+  <main class="flex-1 container mx-auto px-4 py-8 space-y-12">
+    <section class="bg-white shadow-lg rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Créer une nouvelle commande</h2>
+      <div id="alert-container" class="mb-4"></div>
+      <form id="new-order-form" class="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div class="col-span-2">
+          <label for="order-from" class="block text-sm font-medium text-gray-700">Adresse de départ</label>
+          <input
+            type="text"
+            id="order-from"
+            placeholder="Ex : 10 Rue Esquirol, Toulouse"
+            required
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div class="col-span-2">
+          <label for="order-to" class="block text-sm font-medium text-gray-700">Adresse de livraison</label>
+          <input
+            type="text"
+            id="order-to"
+            placeholder="Ex : 15 Rue Peyrolières, Toulouse"
+            required
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label for="order-km" class="block text-sm font-medium text-gray-700">Distance estimée (km)</label>
+          <input
+            type="number"
+            step="0.1"
+            id="order-km"
+            placeholder="Ex : 2.5"
+            required
+            class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div class="flex items-center space-x-2 rtl:space-x-reverse">
+          <input type="checkbox" id="order-urgent" class="h-4 w-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+          <label for="order-urgent" class="text-sm text-gray-700">Urgent (+ tarif)</label>
+        </div>
+        <div id="fee-display" class="col-span-2 text-lg font-semibold text-gray-800"></div>
+        <div class="col-span-2">
+          <button
+            type="button"
+            id="btn-calc-fee"
+            class="w-full py-2 px-4 bg-yellow-500 text-white font-semibold rounded-md hover:bg-yellow-600 transition"
+          >
+            Calculer le tarif
+          </button>
+        </div>
+        <div class="col-span-2">
+          <button
+            type="submit"
+            id="btn-create-order"
+            class="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition disabled:opacity-50"
+          >
+            Créer et payer ma commande
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="bg-white shadow-lg rounded-lg p-6">
+      <h2 class="text-xl font-semibold mb-4">Mes commandes</h2>
+      <div class="overflow-x-auto">
+        <table class="min-w-full table-auto text-left text-gray-700 text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-2">ID</th>
+              <th class="px-4 py-2">Type</th>
+              <th class="px-4 py-2">Distance</th>
+              <th class="px-4 py-2">Tarif (EUR)</th>
+              <th class="px-4 py-2">Statut</th>
+              <th class="px-4 py-2">Paiement</th>
+              <th class="px-4 py-2">Action</th>
+            </tr>
+          </thead>
+          <tbody id="client-orders-table" class="divide-y divide-gray-200"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- Pied de page -->
+  <footer class="bg-gray-100 text-center py-4 text-gray-500 text-sm">
+    &copy; 2025 Coursier Prioritaire Toulouse
+  </footer>
+</body>
+</html>
