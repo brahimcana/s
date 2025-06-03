@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Connexion1</title>
+  <title>Connexion</title>
   <style>
     body {
       background-color: #f1f1f1;
@@ -14,7 +14,6 @@
       height: 100vh;
       margin: 0;
     }
-
     .container {
       background: #fff;
       padding: 20px;
@@ -23,13 +22,11 @@
       width: 90%;
       max-width: 400px;
     }
-
     h2 {
       text-align: center;
       color: #333;
       margin-bottom: 20px;
     }
-
     input {
       width: 100%;
       padding: 12px;
@@ -39,7 +36,6 @@
       font-size: 16px;
       box-sizing: border-box;
     }
-
     button {
       background-color: #2980b9;
       color: white;
@@ -51,29 +47,24 @@
       cursor: pointer;
       margin-top: 8px;
     }
-
     button:hover {
       background-color: #1c5980;
     }
-
     .message {
       margin-top: 10px;
       text-align: center;
       font-size: 14px;
     }
-
     .register-link {
       text-align: center;
       margin-top: 16px;
       font-size: 14px;
     }
-
     .register-link a {
       color: #2980b9;
       text-decoration: none;
       font-weight: bold;
     }
-
     .register-link a:hover {
       text-decoration: underline;
     }
@@ -103,6 +94,7 @@
       messageEl.textContent = 'Chargement...';
       messageEl.style.color = 'black';
 
+      // جهّز FormData وأضف path = "loginUser"
       const formData = new FormData(form);
       formData.append('path', 'loginUser');
 
@@ -114,24 +106,25 @@
         const result = await response.json();
 
         if (result.success) {
-          // Stocker dans localStorage
+          // خزّن الكائن كاملاً في localStorage
           const userObj = {
             email: form.email.value.trim(),
             role: result.role,
             token: result.token
           };
           localStorage.setItem('currentUser', JSON.stringify(userObj));
+
           messageEl.textContent = "Connexion réussie, redirection...";
           messageEl.style.color = "green";
 
-          // Redirection selon rôle
+          // بعد قليل، توجه إلى لوحة التحكم حسب الدور
           setTimeout(() => {
             if (result.role === 'client') {
               window.location.href = 'dashboard-client.html';
             } else {
               window.location.href = 'dashboard-driver.html';
             }
-          }, 1000);
+          }, 800);
         } else {
           messageEl.textContent = result.message || "Erreur lors de la connexion.";
           messageEl.style.color = "red";
