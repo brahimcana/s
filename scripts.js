@@ -1,7 +1,7 @@
 // scripts.js
 
 // 1. ثابت الـ Web App (Apps Script URL)
-const API_BASE_URL = "https://script.google.com/macros/s/AKfycbzPsn_l4mppwJzi1yq9XOWPX5GilvpEg4SZPaOv2F8rUw-ZfqZyi7dQpLYsINtogNRm/exec";
+const API_BASE_URL = "https://script.google.com/macros/s/AKfycbzKTpDZZXhf5PF-XFI_jsfyv6SE8QWfG2sDAhWmeF9r8NL4IX6XuLhzi7R0Cioa6ihl/exec";
 
 // 2. مفتاح Stripe العام (ضع مفتاحك من لوحة Stripe)
 const STRIPE_PUBLIC_KEY = "pk_test_XXXXXXXXXXXXXX";
