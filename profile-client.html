@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profil Client – Coursier Prioritaire Toulouse</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- JS général -->
+  <script src="scripts.js" defer></script>
+  
+  <style>
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Barre de navigation -->
+  <nav class="bg-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="index.html" class="text-2xl font-bold text-blue-600">Coursier Prioritaire</a>
+      <ul class="flex space-x-6">
+        <li><a href="index.html" class="text-gray-700 hover:text-blue-600">Accueil</a></li>
+        <li><a href="login.html" id="nav-login" class="text-gray-700 hover:text-blue-600 hidden">Connexion</a></li>
+        <li><a href="register.html" id="nav-register" class="text-gray-700 hover:text-blue-600 hidden">Inscription</a></li>
+        <li><a href="dashboard-client.html" id="nav-dashboard-client" class="hidden text-gray-700 hover:text-blue-600">Tableau de bord</a></li>
+        <li><button id="btn-logout" class="hidden text-red-500 hover:text-red-700">Déconnexion</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Formulaire de profil client -->
+  <main class="flex-1 flex items-center justify-center">
+    <div class="w-full max-w-md bg-white shadow-lg rounded-lg overflow-hidden">
+      <div class="p-6">
+        <h2 class="text-2xl font-semibold text-center mb-4">Compléter votre profil (Client)</h2>
+        <div id="alert-container" class="mb-4"></div>
+
+        <form id="profile-client-form" class="space-y-5">
+          <div>
+            <label for="client-name" class="block text-sm font-medium text-gray-700">Nom complet</label>
+            <input
+              type="text"
+              id="client-name"
+              placeholder="Ex : Jean Dupont"
+              required
+              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label for="client-phone" class="block text-sm font-medium text-gray-700">Téléphone</label>
+            <input
+              type="tel"
+              id="client-phone"
+              placeholder="06 12 34 56 78"
+              required
+              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label for="client-address" class="block text-sm font-medium text-gray-700">Adresse</label>
+            <input
+              type="text"
+              id="client-address"
+              placeholder="Ex : 10 Rue de la République, Toulouse"
+              required
+              class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <button
+            type="submit"
+            id="btn-profile-client-submit"
+            class="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition disabled:opacity-50"
+          >
+            Valider le profil
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Pied de page -->
+  <footer class="bg-gray-100 text-center py-4 text-gray-500 text-sm">
+    &copy; 2025 Coursier Prioritaire Toulouse
+  </footer>
+</body>
+</html>
