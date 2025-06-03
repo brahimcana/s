@@ -1,19 +1,15 @@
-// ----------------------------------------------
-// 1. CONSTANTES & UTILES
-// ----------------------------------------------
 const API_URL = "https://script.google.com/macros/s/AKfycbzBLlXlwArIS1KrZDJNIJPpn1cfgA0YJSZxz5fs25jB64ngEMp3hMatf7hSPVashceG/exec";
 
-// Affichage de messages
-function showAlert(type, message, containerId) {
+// Affichage de messages (error ou success)
+function showAlert(message, type = 'error', containerId = "alert-container") {
   const container = document.getElementById(containerId);
   if (!container) return;
-  const color = type === "error" ? "red" : "green";
+  const bgColor = type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700';
   container.innerHTML = `
-    <div class="bg-${color}-100 border border-${color}-300 text-${color}-800 px-4 py-2 rounded mb-2">
+    <div class="p-3 mb-4 text-sm rounded ${bgColor}">
       ${message}
-    </div>
-  `;
-  setTimeout(() => { container.innerHTML = ""; }, 4000);
+    </div>`;
+  setTimeout(() => { container.innerHTML = ""; }, 5000);
 }
 
 function getCurrentUser() {
@@ -35,50 +31,54 @@ function updateNav() {
     };
   }
 }
-
 document.addEventListener("DOMContentLoaded", updateNav);
 
-// Appel POST générique
+// Appel POST générique avec gestion des erreurs et message serveur
 async function apiPost(path, data = {}) {
   try {
-    const res = await fetch(`${API_URL}?path=${path}`, {
+    const res = await fetch(`${API_URL}?path=${encodeURIComponent(path)}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data)
     });
-    return await res.json();
+    if (!res.ok) {
+      // HTTP status != 2xx
+      return { success: false, message: `Erreur HTTP: ${res.status}` };
+    }
+    const json = await res.json();
+    if (!json.success) {
+      // réponse من السيرفر فيها success=false مع رسالة
+      return { success: false, message: json.message || "Erreur inconnue du serveur." };
+    }
+    return json;
   } catch (e) {
     console.error("Erreur API", e);
     return { success: false, message: "Erreur réseau ou serveur." };
   }
 }
 
-// ----------------------------------------------
-// 2. PAGE login.html
-// ----------------------------------------------
+// --------- login.html ----------
 if (window.location.pathname.includes("login.html")) {
   document.getElementById("login-form")?.addEventListener("submit", async e => {
     e.preventDefault();
     const email = document.getElementById("login-email").value.trim();
     const password = document.getElementById("login-password").value.trim();
-    if (!email || !password) return showAlert("error", "Champs requis.", "alert-container");
+    if (!email || !password) return showAlert("Champs requis.", "error");
 
     const res = await apiPost("loginUser", { email, password });
     if (res.success) {
       localStorage.setItem("currentUser", JSON.stringify({ email, role: res.role }));
-      showAlert("success", "Connexion réussie", "alert-container");
+      showAlert("Connexion réussie", "success");
       setTimeout(() => {
         window.location.href = res.role === "client" ? "dashboard-client.html" : "dashboard-driver.html";
       }, 1000);
     } else {
-      showAlert("error", res.message, "alert-container");
+      showAlert(res.message, "error");
     }
   });
 }
 
-// ----------------------------------------------
-// 3. PAGE profile-client.html
-// ----------------------------------------------
+// --------- profile-client.html ----------
 if (window.location.pathname.includes("profile-client.html")) {
   const email = localStorage.getItem("temp_email");
   const password = localStorage.getItem("temp_password");
@@ -90,10 +90,10 @@ if (window.location.pathname.includes("profile-client.html")) {
     const name = document.getElementById("client-name").value.trim();
     const phone = document.getElementById("client-phone").value.trim();
     const address = document.getElementById("client-address").value.trim();
-    if (!name || !phone || !address) return showAlert("error", "Champs requis.", "alert-container");
+    if (!name || !phone || !address) return showAlert("Champs requis.", "error");
 
     const regRes = await apiPost("registerUser", { name, email, password, role, phone });
-    if (!regRes.success) return showAlert("error", regRes.message, "alert-container");
+    if (!regRes.success) return showAlert(regRes.message, "error");
 
     const profRes = await apiPost("completeProfile", { email, role, fullName: name, phone, address });
     if (profRes.success) {
@@ -101,17 +101,15 @@ if (window.location.pathname.includes("profile-client.html")) {
       localStorage.removeItem("temp_email");
       localStorage.removeItem("temp_password");
       localStorage.removeItem("temp_role");
-      showAlert("success", "Profil enregistré", "alert-container");
+      showAlert("Profil enregistré", "success");
       setTimeout(() => window.location.href = "dashboard-client.html", 1000);
     } else {
-      showAlert("error", profRes.message, "alert-container");
+      showAlert(profRes.message, "error");
     }
   });
 }
 
-// ----------------------------------------------
-// 4. PAGE profile-driver.html
-// ----------------------------------------------
+// --------- profile-driver.html ----------
 if (window.location.pathname.includes("profile-driver.html")) {
   const email = localStorage.getItem("temp_email");
   const password = localStorage.getItem("temp_password");
@@ -125,10 +123,10 @@ if (window.location.pathname.includes("profile-driver.html")) {
     const license = document.getElementById("driver-license").value.trim();
     const vehicle = document.getElementById("driver-vehicle").value;
     const plate = document.getElementById("driver-plate").value.trim();
-    if (!name || !phone || !license || !vehicle || !plate) return showAlert("error", "Champs requis.", "alert-container");
+    if (!name || !phone || !license || !vehicle || !plate) return showAlert("Champs requis.", "error");
 
     const regRes = await apiPost("registerUser", { name, email, password, role, phone });
-    if (!regRes.success) return showAlert("error", regRes.message, "alert-container");
+    if (!regRes.success) return showAlert(regRes.message, "error");
 
     const profRes = await apiPost("completeProfile", { email, role, fullName: name, phone, licenseNumber: license, vehicleType: vehicle, plateNumber: plate });
     if (profRes.success) {
@@ -136,22 +134,10 @@ if (window.location.pathname.includes("profile-driver.html")) {
       localStorage.removeItem("temp_email");
       localStorage.removeItem("temp_password");
       localStorage.removeItem("temp_role");
-      showAlert("success", "Profil enregistré", "alert-container");
+      showAlert("Profil enregistré", "success");
       setTimeout(() => window.location.href = "dashboard-driver.html", 1000);
     } else {
-      showAlert("error", profRes.message, "alert-container");
+      showAlert(profRes.message, "error");
     }
   });
-}
-function showAlert(message, type = 'error') {
-  const alertContainer = document.getElementById("alert-container");
-  if (alertContainer) {
-    alertContainer.innerHTML = `
-      <div class="p-3 mb-4 text-sm rounded ${type === 'error' ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}">
-        ${message}
-      </div>`;
-    setTimeout(() => {
-      alertContainer.innerHTML = "";
-    }, 5000);
-  }
 }
