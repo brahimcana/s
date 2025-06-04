@@ -1,158 +1,132 @@
-<!-- Driver Registration Page + Admin Page -->
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inscription Chauffeur & Admin</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f4f4f4;
-    }
-    header {
-      background-color: #111827;
-      color: white;
-      padding: 20px;
-      text-align: center;
-      font-size: 24px;
-    }
-    header img {
-      max-height: 40px;
-      vertical-align: middle;
-      margin-right: 10px;
-    }
-    .container {
-      max-width: 500px;
-      margin: auto;
-      padding: 20px;
-      background-color: white;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      margin-top: 20px;
-    }
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    label {
-      display: block;
-      margin: 15px 0 5px;
-      font-weight: 500;
-    }
-    input, select {
-      width: 100%;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-    }
-    button {
-      width: 100%;
-      padding: 15px;
-      background-color: #3b82f6;
-      color: white;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      margin-top: 20px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-    button:hover {
-      background-color: #2563eb;
-    }
-    .note {
-      font-size: 14px;
-      color: #777;
-      margin-top: 10px;
-    }
-    .hidden { display: none; }
-  </style>
-</head>
-<body>
-  <header>
-    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Uber_logo_2018.svg/320px-Uber_logo_2018.svg.png" alt="Logo">
-    <span>Service Livraison Toulouse</span>
-  </header>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DocSwift Toulouse</title>
+    <!-- ===== Bootstrap 5 CSS (من CDN) ===== -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-ENjdO4Dr2bkBIFxQpeoNTMN4tcO6XxD0IYd0r8i+Y7E3zuv7YtRfL15kB+0UJ0y"
+      crossorigin="anonymous"
+    />
+    <!-- رابط ملف CSS مشترك -->
+    <?!= include('Styles'); ?>
+  </head>
+  <body>
+    <!-- ===== Header/Navbar ===== -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
+      <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="?page=home">
+          <img src="https://i.imgur.com/6RAgZpW.png" alt="Logo" width="32" height="32" class="me-2" />
+          <span class="fw-bold">DocSwift</span>
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNavAltMarkup"
+          aria-controls="navbarNavAltMarkup"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav me-auto mb-2 mb-lg-0">
+            <a class="nav-link active" aria-current="page" href="?page=home">Accueil / Home</a>
+            <a class="nav-link" href="?page=createRequest">Demande / Request</a>
+            <a class="nav-link" href="?page=driverDash">Chauffeur / Driver</a>
+            <a class="nav-link" href="?page=driverReg">S'inscrire / Register</a>
+            <a class="nav-link" href="?page=adminReview">Admin</a>
+          </div>
+          <div class="d-flex align-items-center">
+            <!-- اختار اللغة (بدون وظيفة حقيقية؛ مهيّأ لاحقًا) -->
+            <div class="dropdown">
+              <button
+                class="btn btn-outline-secondary dropdown-toggle"
+                type="button"
+                id="langDropdown"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                FR / EN
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+                <li><a class="dropdown-item" href="?lang=fr">Français</a></li>
+                <li><a class="dropdown-item" href="?lang=en">English</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
 
-  <div class="container">
-    <h2>Création de compte</h2>
-    <form id="registerForm">
-      <label for="name">Nom complet</label>
-      <input type="text" id="name" name="name" required />
+    <!-- ===== أفكار المحتوى الرئيسي ===== -->
+    <div class="container my-5">
+      <div class="text-center mb-4">
+        <h1 class="display-6">🛵 DocSwift Toulouse</h1>
+        <p class="lead">
+          خدمة سريعة وموثوقة لنقل الوثائق الورقية وشراء المستلزمات داخل تولوز في أقل من ساعة.
+        </p>
+      </div>
 
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" required />
+      <div class="row g-4">
+        <!-- بطاقة 1: إنشاء طلب -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">انشاء طلب / Créer une demande</h5>
+              <p class="card-text">
+                اطلبنا ننقل أوراقك أو نشتري لك ما فاتك في أي مكان داخل تولوز.  
+                / Nous livrons vos documents ou achetons ce qui vous manque à Toulouse.
+              </p>
+              <a href="?page=createRequest" class="btn btn-primary">ابدأ الآن / Start</a>
+            </div>
+          </div>
+        </div>
+        <!-- بطاقة 2: تسجيل السائق -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">سائق توصيل / Chauffeur</h5>
+              <p class="card-text">
+                انضم لفريقنا وساعد بتوصيل الطلبات. / Rejoignez notre équipe pour livrer.
+              </p>
+              <a href="?page=driverReg" class="btn btn-success">سجل الآن / Register</a>
+            </div>
+          </div>
+        </div>
+        <!-- بطاقة 3: إدارة / الإدارة -->
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm">
+            <div class="card-body">
+              <h5 class="card-title">لوحة الإدارة / Admin Panel</h5>
+              <p class="card-text">
+                إدارة السائقين والطلبات. / Gérer les chauffeurs et commandes.
+              </p>
+              <a href="?page=adminReview" class="btn btn-outline-danger">عرض / View</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <label for="phone">Numéro de téléphone</label>
-      <input type="tel" id="phone" name="phone" required />
+    <!-- ===== Footer ===== -->
+    <footer class="bg-light text-center py-3 mt-auto shadow-sm">
+      <div class="container">
+        <small class="text-muted">
+          © 2025 DocSwift Toulouse. Tous droits réservés.
+        </small>
+      </div>
+    </footer>
 
-      <label for="accountType">Type de compte</label>
-      <select id="accountType" name="accountType" required>
-        <option value="driver">Chauffeur</option>
-        <option value="client">Client</option>
-      </select>
-
-      <label for="password">Mot de passe</label>
-      <input type="password" id="password" name="password" required />
-
-      <label for="confirmPassword">Confirmer le mot de passe</label>
-      <input type="password" id="confirmPassword" name="confirmPassword" required />
-
-      <button type="submit">Créer le compte</button>
-      <p id="formMessage" class="note"></p>
-    </form>
-
-    <form id="additionalForm" class="hidden">
-      <label for="identity">Carte d'identité / Passeport</label>
-      <input type="file" id="identity" name="identity" accept="image/*" required />
-
-      <label for="permit">Permis de conduire (si VTC)</label>
-      <input type="file" id="permit" name="permit" accept="image/*" />
-
-      <button type="submit">Envoyer les documents</button>
-    </form>
-  </div>
-
-  <script>
-    const registerForm = document.getElementById("registerForm");
-    const additionalForm = document.getElementById("additionalForm");
-    const formMessage = document.getElementById("formMessage");
-
-    registerForm.addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
-      if (password !== confirmPassword) {
-        formMessage.textContent = "Les mots de passe ne correspondent pas.";
-        return;
-      }
-      formMessage.textContent = "Envoi en cours...";
-      const formData = new FormData(registerForm);
-      const response = await fetch("https://script.google.com/macros/s/AKfycbwDOTqaEEz9yItJJb-nZr2LEGeyGufguAo54BOLyHsA5pZPtZIoGYh04Hcdp_MXJVkYUA/exec", {
-        method: "POST",
-        body: formData,
-      });
-      const result = await response.text();
-      formMessage.textContent = "Inscription réussie ! Merci.";
-      registerForm.classList.add("hidden");
-      additionalForm.classList.remove("hidden");
-    });
-
-    additionalForm.addEventListener("submit", async function(e) {
-      e.preventDefault();
-      const formData = new FormData(additionalForm);
-      const response = await fetch("https://script.google.com/macros/s/AKfycbwDOTqaEEz9yItJJb-nZr2LEGeyGufguAo54BOLyHsA5pZPtZIoGYh04Hcdp_MXJVkYUA/exec", {
-        method: "POST",
-        body: formData,
-      });
-      const result = await response.text();
-      alert("Documents envoyés avec succès.");
-      additionalForm.reset();
-    });
-  </script>
-</body>
+    <!-- Bootstrap 5 JS & Popper (CDN) -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-qQ2d+JQGf2B4qlv3VO2TEngIuD+VKSQ7mQe5eH36F5GHSt/6mgxTzY2+v0hQz6Y"
+      crossorigin="anonymous"
+    ></script>
+  </body>
 </html>
