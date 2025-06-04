@@ -1,16 +1,28 @@
-<!-- Driver Registration Page -->
+<!-- Driver Registration Page + Admin Page -->
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Inscription Chauffeur</title>
+  <title>Inscription Chauffeur & Admin</title>
   <style>
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f9f9f9;
+      background-color: #f4f4f4;
+    }
+    header {
+      background-color: #111827;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 24px;
+    }
+    header img {
+      max-height: 40px;
+      vertical-align: middle;
+      margin-right: 10px;
     }
     .container {
       max-width: 500px;
@@ -19,7 +31,7 @@
       background-color: white;
       border-radius: 20px;
       box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-      margin-top: 40px;
+      margin-top: 20px;
     }
     h2 {
       text-align: center;
@@ -57,12 +69,18 @@
       color: #777;
       margin-top: 10px;
     }
+    .hidden { display: none; }
   </style>
 </head>
 <body>
+  <header>
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/Uber_logo_2018.svg/320px-Uber_logo_2018.svg.png" alt="Logo">
+    <span>Service Livraison Toulouse</span>
+  </header>
+
   <div class="container">
-    <h2>Inscription Chauffeur</h2>
-    <form id="driverForm">
+    <h2>Création de compte</h2>
+    <form id="registerForm">
       <label for="name">Nom complet</label>
       <input type="text" id="name" name="name" required />
 
@@ -72,32 +90,68 @@
       <label for="phone">Numéro de téléphone</label>
       <input type="tel" id="phone" name="phone" required />
 
+      <label for="accountType">Type de compte</label>
+      <select id="accountType" name="accountType" required>
+        <option value="driver">Chauffeur</option>
+        <option value="client">Client</option>
+      </select>
+
+      <label for="password">Mot de passe</label>
+      <input type="password" id="password" name="password" required />
+
+      <label for="confirmPassword">Confirmer le mot de passe</label>
+      <input type="password" id="confirmPassword" name="confirmPassword" required />
+
+      <button type="submit">Créer le compte</button>
+      <p id="formMessage" class="note"></p>
+    </form>
+
+    <form id="additionalForm" class="hidden">
       <label for="identity">Carte d'identité / Passeport</label>
       <input type="file" id="identity" name="identity" accept="image/*" required />
 
       <label for="permit">Permis de conduire (si VTC)</label>
       <input type="file" id="permit" name="permit" accept="image/*" />
 
-      <button type="submit">Soumettre</button>
-      <p class="note">En soumettant, vous acceptez que vos données soient utilisées pour la validation.</p>
+      <button type="submit">Envoyer les documents</button>
     </form>
   </div>
 
   <script>
-    document.getElementById("driverForm").addEventListener("submit", async function (e) {
+    const registerForm = document.getElementById("registerForm");
+    const additionalForm = document.getElementById("additionalForm");
+    const formMessage = document.getElementById("formMessage");
+
+    registerForm.addEventListener("submit", async function(e) {
       e.preventDefault();
-
-      const form = e.target;
-      const formData = new FormData(form);
-
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      if (password !== confirmPassword) {
+        formMessage.textContent = "Les mots de passe ne correspondent pas.";
+        return;
+      }
+      formMessage.textContent = "Envoi en cours...";
+      const formData = new FormData(registerForm);
       const response = await fetch("https://script.google.com/macros/s/AKfycbwDOTqaEEz9yItJJb-nZr2LEGeyGufguAo54BOLyHsA5pZPtZIoGYh04Hcdp_MXJVkYUA/exec", {
         method: "POST",
         body: formData,
       });
-
       const result = await response.text();
-      alert("Succès: " + result);
-      form.reset();
+      formMessage.textContent = "Inscription réussie ! Merci.";
+      registerForm.classList.add("hidden");
+      additionalForm.classList.remove("hidden");
+    });
+
+    additionalForm.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const formData = new FormData(additionalForm);
+      const response = await fetch("https://script.google.com/macros/s/AKfycbwDOTqaEEz9yItJJb-nZr2LEGeyGufguAo54BOLyHsA5pZPtZIoGYh04Hcdp_MXJVkYUA/exec", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.text();
+      alert("Documents envoyés avec succès.");
+      additionalForm.reset();
     });
   </script>
 </body>
