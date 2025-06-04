@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مراجعة طلبات السائقين</title>
+    <style>
+      body { font-family: sans-serif; padding: 20px; direction: rtl; }
+      table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+      th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+      th { background-color: #f4f4f4; }
+      button { padding: 5px 10px; margin: 2px; }
+    </style>
+  </head>
+  <body>
+    <h2>مراجعة طلبات تسجيل السائقين</h2>
+    <table id="driversTable">
+      <thead>
+        <tr>
+          <th>البريد الإلكتروني</th>
+          <th>الاسم الكامل</th>
+          <th>الهاتف</th>
+          <th>نوع الهوية</th>
+          <th>الحالة</th>
+          <th>الإجراء</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- سيُملأ ديناميكيًا -->
+      </tbody>
+    </table>
+
+    <script>
+      // عند تحميل الصفحة، نستدعي الدالة السيرفرية لجلب السائقين المعلقين
+      window.onload = function() {
+        google.script.run.withSuccessHandler(populateTable).getPendingDrivers();
+      };
+
+      // تعبئة الجدول بالبيانات القادمة من السيرفر
+      function populateTable(drivers) {
+        const tbody = document.querySelector('#driversTable tbody');
+        tbody.innerHTML = '';
+        if (!drivers || drivers.length === 0) {
+          const row = tbody.insertRow();
+          const cell = row.insertCell();
+          cell.colSpan = 6;
+          cell.textContent = 'لا توجد طلبات معلّقة حاليًا.';
+          return;
+        }
+        drivers.forEach(function(driver) {
+          const [sheetRow, email, fullName, phone, idType, status] = driver;
+          const row = tbody.insertRow();
+          row.insertCell().textContent = email;
+          row.insertCell().textContent = fullName;
+          row.insertCell().textContent = phone;
+          row.insertCell().textContent = idType;
+          row.insertCell().textContent = status;
+
+          const actionCell = row.insertCell();
+          const btnApprove = document.createElement('button');
+          btnApprove.textContent = 'موافقة';
+          btnApprove.onclick = function() {
+            google.script.run.withSuccessHandler(function(res) {
+              if (res === 'OK') row.remove();
+              else alert('خطأ: ' + res);
+            }).setDriverStatus(sheetRow, 'Approved');
+          };
+          actionCell.appendChild(btnApprove);
+
+          const btnReject = document.createElement('button');
+          btnReject.textContent = 'رفض';
+          btnReject.onclick = function() {
+            google.script.run.withSuccessHandler(function(res) {
+              if (res === 'OK') row.remove();
+              else alert('خطأ: ' + res);
+            }).setDriverStatus(sheetRow, 'Rejected');
+          };
+          actionCell.appendChild(btnReject);
+        });
+      }
+    </script>
+  </body>
+</html>
