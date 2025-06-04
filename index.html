@@ -1,132 +1,207 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>DocSwift Toulouse</title>
-    <!-- ===== Bootstrap 5 CSS (من CDN) ===== -->
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-ENjdO4Dr2bkBIFxQpeoNTMN4tcO6XxD0IYd0r8i+Y7E3zuv7YtRfL15kB+0UJ0y"
-      crossorigin="anonymous"
-    />
-    <!-- رابط ملف CSS مشترك -->
-    <?!= include('Styles'); ?>
-  </head>
-  <body>
-    <!-- ===== Header/Navbar ===== -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-      <div class="container-fluid">
-        <a class="navbar-brand d-flex align-items-center" href="?page=home">
-          <img src="https://i.imgur.com/6RAgZpW.png" alt="Logo" width="32" height="32" class="me-2" />
-          <span class="fw-bold">DocSwift</span>
-        </a>
-        <button
-          class="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNavAltMarkup"
-          aria-controls="navbarNavAltMarkup"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <div class="navbar-nav me-auto mb-2 mb-lg-0">
-            <a class="nav-link active" aria-current="page" href="?page=home">Accueil / Home</a>
-            <a class="nav-link" href="?page=createRequest">Demande / Request</a>
-            <a class="nav-link" href="?page=driverDash">Chauffeur / Driver</a>
-            <a class="nav-link" href="?page=driverReg">S'inscrire / Register</a>
-            <a class="nav-link" href="?page=adminReview">Admin</a>
-          </div>
-          <div class="d-flex align-items-center">
-            <!-- اختار اللغة (بدون وظيفة حقيقية؛ مهيّأ لاحقًا) -->
-            <div class="dropdown">
-              <button
-                class="btn btn-outline-secondary dropdown-toggle"
-                type="button"
-                id="langDropdown"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-              >
-                FR / EN
-              </button>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
-                <li><a class="dropdown-item" href="?lang=fr">Français</a></li>
-                <li><a class="dropdown-item" href="?lang=en">English</a></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تطبيق توصيل المستندات - تولوز</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    body {
+      background: #f5f7fa;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-size: 16px;
+    }
+    header {
+      background-color: #0052cc;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    header .logo {
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    header nav a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+    header nav a:hover {
+      color: #ffcc00;
+    }
+    main {
+      flex-grow: 1;
+      padding: 20px;
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    h1 {
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+      color: #0052cc;
+      text-align: center;
+    }
+    form {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #444;
+    }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      margin-bottom: 15px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    input[type="tel"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #0052cc;
+      box-shadow: 0 0 4px #0052cc;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    button {
+      background-color: #0052cc;
+      color: white;
+      font-weight: 700;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 1.1rem;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #003d99;
+    }
+    footer {
+      text-align: center;
+      padding: 15px 10px;
+      font-size: 0.9rem;
+      color: #777;
+      background-color: #e1e6f0;
+      margin-top: auto;
+    }
+    /* Responsive */
+    @media (max-width: 480px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      header nav {
+        margin-top: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">Toulouse Express</div>
+    <nav>
+      <a href="#request">طلب التوصيل</a>
+      <a href="#about">عن التطبيق</a>
+      <a href="#contact">تواصل معنا</a>
     </nav>
+  </header>
 
-    <!-- ===== أفكار المحتوى الرئيسي ===== -->
-    <div class="container my-5">
-      <div class="text-center mb-4">
-        <h1 class="display-6">🛵 DocSwift Toulouse</h1>
-        <p class="lead">
-          خدمة سريعة وموثوقة لنقل الوثائق الورقية وشراء المستلزمات داخل تولوز في أقل من ساعة.
-        </p>
-      </div>
+  <main>
+    <h1>طلب توصيل مستندات أو مشتريات</h1>
 
-      <div class="row g-4">
-        <!-- بطاقة 1: إنشاء طلب -->
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">انشاء طلب / Créer une demande</h5>
-              <p class="card-text">
-                اطلبنا ننقل أوراقك أو نشتري لك ما فاتك في أي مكان داخل تولوز.  
-                / Nous livrons vos documents ou achetons ce qui vous manque à Toulouse.
-              </p>
-              <a href="?page=createRequest" class="btn btn-primary">ابدأ الآن / Start</a>
-            </div>
-          </div>
-        </div>
-        <!-- بطاقة 2: تسجيل السائق -->
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">سائق توصيل / Chauffeur</h5>
-              <p class="card-text">
-                انضم لفريقنا وساعد بتوصيل الطلبات. / Rejoignez notre équipe pour livrer.
-              </p>
-              <a href="?page=driverReg" class="btn btn-success">سجل الآن / Register</a>
-            </div>
-          </div>
-        </div>
-        <!-- بطاقة 3: إدارة / الإدارة -->
-        <div class="col-12 col-md-6 col-lg-4">
-          <div class="card h-100 shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">لوحة الإدارة / Admin Panel</h5>
-              <p class="card-text">
-                إدارة السائقين والطلبات. / Gérer les chauffeurs et commandes.
-              </p>
-              <a href="?page=adminReview" class="btn btn-outline-danger">عرض / View</a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <form id="deliveryForm">
+      <label for="name">الاسم الكامل</label>
+      <input type="text" id="name" name="name" placeholder="مثلاً: أحمد محمد" required />
 
-    <!-- ===== Footer ===== -->
-    <footer class="bg-light text-center py-3 mt-auto shadow-sm">
-      <div class="container">
-        <small class="text-muted">
-          © 2025 DocSwift Toulouse. Tous droits réservés.
-        </small>
-      </div>
-    </footer>
+      <label for="phone">رقم الهاتف</label>
+      <input type="tel" id="phone" name="phone" placeholder="+33 6 12 34 56 78" required pattern="\+?\d{8,15}" />
 
-    <!-- Bootstrap 5 JS & Popper (CDN) -->
-    <script
-      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
-      integrity="sha384-qQ2d+JQGf2B4qlv3VO2TEngIuD+VKSQ7mQe5eH36F5GHSt/6mgxTzY2+v0hQz6Y"
-      crossorigin="anonymous"
-    ></script>
-  </body>
+      <label for="email">البريد الإلكتروني</label>
+      <input type="email" id="email" name="email" placeholder="example@mail.com" required />
+
+      <label for="address">العنوان التفصيلي في تولوز</label>
+      <textarea id="address" name="address" placeholder="عنوان استلام الوثائق أو المشتريات" required></textarea>
+
+      <label for="details">تفاصيل الطلب</label>
+      <textarea id="details" name="details" placeholder="مثلاً: شاحن جوال، أو وثيقة رسمية" required></textarea>
+
+      <label for="deliveryTime">وقت التسليم المطلوب</label>
+      <select id="deliveryTime" name="deliveryTime" required>
+        <option value="" disabled selected>اختر الوقت</option>
+        <option value="ساعة">في خلال ساعة</option>
+        <option value="ساعتين">في خلال ساعتين</option>
+        <option value="نصف يوم">في خلال نصف يوم</option>
+      </select>
+
+      <button type="submit">أرسل الطلب</button>
+    </form>
+  </main>
+
+  <footer>
+    © 2025 تطبيق توصيل مستندات تولوز
+  </footer>
+
+  <script>
+    const form = document.getElementById('deliveryForm');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+
+      const data = {
+        name: form.name.value.trim(),
+        phone: form.phone.value.trim(),
+        email: form.email.value.trim(),
+        address: form.address.value.trim(),
+        details: form.details.value.trim(),
+        deliveryTime: form.deliveryTime.value,
+      };
+
+      if (!data.name || !data.phone || !data.email || !data.address || !data.details || !data.deliveryTime) {
+        alert('يرجى ملء جميع الحقول.');
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(() => {
+          alert('تم إرسال طلبك بنجاح، سيتم التواصل معك قريبًا.');
+          form.reset();
+        })
+        .withFailureHandler(err => {
+          alert('حدث خطأ أثناء إرسال الطلب، حاول مرة أخرى.');
+          console.error(err);
+        })
+        .submitDeliveryRequest(data);
+    });
+  </script>
+</body>
 </html>
