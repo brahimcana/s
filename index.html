@@ -1,126 +1,104 @@
+<!-- Driver Registration Page -->
 <!DOCTYPE html>
-<html lang="ar">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل السائق</title>
-    <style>
-      body { font-family: sans-serif; padding: 20px; direction: rtl; }
-      label { display: block; margin-top: 15px; }
-      input, select { width: 100%; padding: 8px; margin-top: 5px; }
-      button { margin-top: 20px; padding: 10px 15px; font-size: 1rem; }
-    </style>
-  </head>
-  <body>
-    <h2>نموذج تسجيل سائق التوصيل</h2>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inscription Chauffeur</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f9f9f9;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      padding: 20px;
+      background-color: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      margin-top: 40px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: 500;
+    }
+    input, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+    }
+    button {
+      width: 100%;
+      padding: 15px;
+      background-color: #3b82f6;
+      color: white;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      margin-top: 20px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #2563eb;
+    }
+    .note {
+      font-size: 14px;
+      color: #777;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Inscription Chauffeur</h2>
     <form id="driverForm">
-      <!-- 1. البريد الإلكتروني -->
-      <label for="email">البريد الإلكتروني:</label>
-      <input type="email" id="email" required />
+      <label for="name">Nom complet</label>
+      <input type="text" id="name" name="name" required />
 
-      <!-- 2. الاسم الكامل -->
-      <label for="fullName">الاسم الكامل:</label>
-      <input type="text" id="fullName" required />
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" required />
 
-      <!-- 3. رقم الهاتف -->
-      <label for="phone">رقم الهاتف (+33XXXXXXXXX):</label>
-      <input type="tel" id="phone" placeholder="+33..." required />
+      <label for="phone">Numéro de téléphone</label>
+      <input type="tel" id="phone" name="phone" required />
 
-      <!-- 4. نوع وثيقة الهوية -->
-      <label for="idType">نوع وثيقة الهوية:</label>
-      <select id="idType" required>
-        <option value="">-- اختر نوع الوثيقة --</option>
-        <option value="NationalID">بطاقة هوية وطنية</option>
-        <option value="Passport">جواز سفر</option>
-        <option value="ResidenceCard">بطاقة إقامة</option>
-      </select>
+      <label for="identity">Carte d'identité / Passeport</label>
+      <input type="file" id="identity" name="identity" accept="image/*" required />
 
-      <!-- 5. رفع صورة للهوية -->
-      <label for="idFile">صورة الهوية:</label>
-      <input type="file" id="idFile" accept="image/*,application/pdf" required />
+      <label for="permit">Permis de conduire (si VTC)</label>
+      <input type="file" id="permit" name="permit" accept="image/*" />
 
-      <!-- 6. رفع بطاقة الإقامة (إن وجدت) -->
-      <label for="residenceFile">صورة بطاقة الإقامة (اختياري):</label>
-      <input type="file" id="residenceFile" accept="image/*,application/pdf" />
-
-      <!-- 7. رفع رخصة القيادة -->
-      <label for="drivingLicenseFile">صورة رخصة القيادة:</label>
-      <input type="file" id="drivingLicenseFile" accept="image/*,application/pdf" required />
-
-      <!-- 8. رفع رخصة VTC إن وجدت (لسيارات النقل) -->
-      <label for="vtcPermitFile">رخصة VTC (إن كنت تستخدم سيارة):</label>
-      <input type="file" id="vtcPermitFile" accept="image/*,application/pdf" />
-
-      <!-- 9. صورة شخصية -->
-      <label for="photoFile">صورة شخصية واضحة:</label>
-      <input type="file" id="photoFile" accept="image/*" required />
-
-      <!-- 10. زر الإرسال -->
-      <button type="button" onclick="submitDriverForm()">إرسال التسجيل</button>
+      <button type="submit">Soumettre</button>
+      <p class="note">En soumettant, vous acceptez que vos données soient utilisées pour la validation.</p>
     </form>
+  </div>
 
-    <script>
-      // دالة تُرفع الملفات إلى Drive وتُرجع معرّف الملف (File ID)
-      function uploadFileToDrive(fileInputId, callback) {
-        const input = document.getElementById(fileInputId);
-        if (!input || !input.files || input.files.length === 0) {
-          callback(''); // لا يوجد ملف مرفوع
-          return;
-        }
-        const file = input.files[0];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const data = e.target.result;
-          // نستدعي الدالة السيرفرية لإنشاء الملف في Drive
-          google.script.run
-            .withSuccessHandler(function(fileId) {
-              callback(fileId);
-            })
-            .uploadFileHelper(file.name, data);
-        };
-        reader.readAsDataURL(file);
-      }
+  <script>
+    document.getElementById("driverForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-      // دالة إرسال النموذج: تتولى رفع كل الملفات ثم تُرسل البيانات النهائية
-      function submitDriverForm() {
-        const email    = document.getElementById('email').value;
-        const fullName = document.getElementById('fullName').value;
-        const phone    = document.getElementById('phone').value;
-        const idType   = document.getElementById('idType').value;
+      const form = e.target;
+      const formData = new FormData(form);
 
-        // نرفع الملفات تباعًا ثم نرسِل جميع IDs للسيرفر
-        uploadFileToDrive('idFile', function(idFileId) {
-          uploadFileToDrive('residenceFile', function(residenceFileId) {
-            uploadFileToDrive('drivingLicenseFile', function(drivingLicenseFileId) {
-              uploadFileToDrive('vtcPermitFile', function(vtcPermitFileId) {
-                uploadFileToDrive('photoFile', function(photoFileId) {
-                  // الآن استدعاء دالة السيرفر لإنشاء سجل السائق
-                  google.script.run
-                    .withSuccessHandler(function(response) {
-                      if (response === 'OK') {
-                        alert('تم إرسال طلب التسجيل بنجاح.\nسيراجع مدير النظام طلبك قريبًا.');
-                        document.getElementById('driverForm').reset();
-                      } else {
-                        alert('حدث خطأ أثناء الإرسال: ' + response);
-                      }
-                    })
-                    .insertDriverRequest({
-                      email: email,
-                      fullName: fullName,
-                      phone: phone,
-                      idType: idType,
-                      idFileId: idFileId,
-                      residenceFileId: residenceFileId,
-                      drivingLicenseFileId: drivingLicenseFileId,
-                      vtcPermitFileId: vtcPermitFileId,
-                      photoFileId: photoFileId
-                    });
-                });
-              });
-            });
-          });
-        });
-      }
-    </script>
-  </body>
+      const response = await fetch("https://script.google.com/macros/s/AKfycbwDOTqaEEz9yItJJb-nZr2LEGeyGufguAo54BOLyHsA5pZPtZIoGYh04Hcdp_MXJVkYUA/exec", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.text();
+      alert("Succès: " + result);
+      form.reset();
+    });
+  </script>
+</body>
 </html>
