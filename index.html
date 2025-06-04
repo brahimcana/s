@@ -1,50 +1,126 @@
 <!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Accueil – Coursier Prioritaire Toulouse</title>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل السائق</title>
+    <style>
+      body { font-family: sans-serif; padding: 20px; direction: rtl; }
+      label { display: block; margin-top: 15px; }
+      input, select { width: 100%; padding: 8px; margin-top: 5px; }
+      button { margin-top: 20px; padding: 10px 15px; font-size: 1rem; }
+    </style>
+  </head>
+  <body>
+    <h2>نموذج تسجيل سائق التوصيل</h2>
+    <form id="driverForm">
+      <!-- 1. البريد الإلكتروني -->
+      <label for="email">البريد الإلكتروني:</label>
+      <input type="email" id="email" required />
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- ملف JS العام -->
-  <script src="scripts.js" defer></script>
-  
-  <style>
-    body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f3f4f6; }
-  </style>
-</head>
-<body class="min-h-screen flex flex-col">
+      <!-- 2. الاسم الكامل -->
+      <label for="fullName">الاسم الكامل:</label>
+      <input type="text" id="fullName" required />
 
-  <!-- Barre de navigation -->
-  <nav class="bg-white shadow-md">
-    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <a href="index.html" class="text-2xl font-bold text-blue-600">Coursier Prioritaire</a>
-      <ul class="flex space-x-6">
-        <li><a href="index.html" class="text-gray-700 hover:text-blue-600">Accueil</a></li>
-        <li><a href="login.html" id="nav-login" class="text-gray-700 hover:text-blue-600">Connexion</a></li>
-        <li><a href="register.html" id="nav-register" class="text-gray-700 hover:text-blue-600">Inscription</a></li>
-        <li><a href="dashboard-client.html" id="nav-dashboard-client" class="hidden text-gray-700 hover:text-blue-600">Tableau de bord (Client)</a></li>
-        <li><a href="dashboard-driver.html" id="nav-dashboard-driver" class="hidden text-gray-700 hover:text-blue-600">Tableau de bord (Livreur)</a></li>
-        <li><button id="btn-logout" class="hidden text-red-500 hover:text-red-700">Déconnexion</button></li>
-      </ul>
-    </div>
-  </nav>
+      <!-- 3. رقم الهاتف -->
+      <label for="phone">رقم الهاتف (+33XXXXXXXXX):</label>
+      <input type="tel" id="phone" placeholder="+33..." required />
 
-  <!-- Contenu principal -->
-  <main class="flex-1 container mx-auto px-4 py-12 text-center">
-    <h1 class="text-4xl font-bold text-gray-800 mb-4">Bienvenue sur Coursier Prioritaire Toulouse</h1>
-    <p class="text-gray-600 mb-8">Nous offrons un service de livraison express pour vos documents, courses, médicaments et bien plus.</p>
-    <div class="space-x-4">
-      <a href="register.html" class="inline-block px-6 py-3 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition">Créer un compte</a>
-      <a href="login.html" class="inline-block px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition">Connexion</a>
-    </div>
-  </main>
+      <!-- 4. نوع وثيقة الهوية -->
+      <label for="idType">نوع وثيقة الهوية:</label>
+      <select id="idType" required>
+        <option value="">-- اختر نوع الوثيقة --</option>
+        <option value="NationalID">بطاقة هوية وطنية</option>
+        <option value="Passport">جواز سفر</option>
+        <option value="ResidenceCard">بطاقة إقامة</option>
+      </select>
 
-  <!-- Pied de page -->
-  <footer class="bg-gray-100 text-center py-4 text-gray-500 text-sm">
-    &copy; 2025 Coursier Prioritaire Toulouse
-  </footer>
-</body>
+      <!-- 5. رفع صورة للهوية -->
+      <label for="idFile">صورة الهوية:</label>
+      <input type="file" id="idFile" accept="image/*,application/pdf" required />
+
+      <!-- 6. رفع بطاقة الإقامة (إن وجدت) -->
+      <label for="residenceFile">صورة بطاقة الإقامة (اختياري):</label>
+      <input type="file" id="residenceFile" accept="image/*,application/pdf" />
+
+      <!-- 7. رفع رخصة القيادة -->
+      <label for="drivingLicenseFile">صورة رخصة القيادة:</label>
+      <input type="file" id="drivingLicenseFile" accept="image/*,application/pdf" required />
+
+      <!-- 8. رفع رخصة VTC إن وجدت (لسيارات النقل) -->
+      <label for="vtcPermitFile">رخصة VTC (إن كنت تستخدم سيارة):</label>
+      <input type="file" id="vtcPermitFile" accept="image/*,application/pdf" />
+
+      <!-- 9. صورة شخصية -->
+      <label for="photoFile">صورة شخصية واضحة:</label>
+      <input type="file" id="photoFile" accept="image/*" required />
+
+      <!-- 10. زر الإرسال -->
+      <button type="button" onclick="submitDriverForm()">إرسال التسجيل</button>
+    </form>
+
+    <script>
+      // دالة تُرفع الملفات إلى Drive وتُرجع معرّف الملف (File ID)
+      function uploadFileToDrive(fileInputId, callback) {
+        const input = document.getElementById(fileInputId);
+        if (!input || !input.files || input.files.length === 0) {
+          callback(''); // لا يوجد ملف مرفوع
+          return;
+        }
+        const file = input.files[0];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const data = e.target.result;
+          // نستدعي الدالة السيرفرية لإنشاء الملف في Drive
+          google.script.run
+            .withSuccessHandler(function(fileId) {
+              callback(fileId);
+            })
+            .uploadFileHelper(file.name, data);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      // دالة إرسال النموذج: تتولى رفع كل الملفات ثم تُرسل البيانات النهائية
+      function submitDriverForm() {
+        const email    = document.getElementById('email').value;
+        const fullName = document.getElementById('fullName').value;
+        const phone    = document.getElementById('phone').value;
+        const idType   = document.getElementById('idType').value;
+
+        // نرفع الملفات تباعًا ثم نرسِل جميع IDs للسيرفر
+        uploadFileToDrive('idFile', function(idFileId) {
+          uploadFileToDrive('residenceFile', function(residenceFileId) {
+            uploadFileToDrive('drivingLicenseFile', function(drivingLicenseFileId) {
+              uploadFileToDrive('vtcPermitFile', function(vtcPermitFileId) {
+                uploadFileToDrive('photoFile', function(photoFileId) {
+                  // الآن استدعاء دالة السيرفر لإنشاء سجل السائق
+                  google.script.run
+                    .withSuccessHandler(function(response) {
+                      if (response === 'OK') {
+                        alert('تم إرسال طلب التسجيل بنجاح.\nسيراجع مدير النظام طلبك قريبًا.');
+                        document.getElementById('driverForm').reset();
+                      } else {
+                        alert('حدث خطأ أثناء الإرسال: ' + response);
+                      }
+                    })
+                    .insertDriverRequest({
+                      email: email,
+                      fullName: fullName,
+                      phone: phone,
+                      idType: idType,
+                      idFileId: idFileId,
+                      residenceFileId: residenceFileId,
+                      drivingLicenseFileId: drivingLicenseFileId,
+                      vtcPermitFileId: vtcPermitFileId,
+                      photoFileId: photoFileId
+                    });
+                });
+              });
+            });
+          });
+        });
+      }
+    </script>
+  </body>
 </html>
