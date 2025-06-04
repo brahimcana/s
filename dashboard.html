@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tableau de Bord</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0f2f5;
+    }
+    header {
+      background-color: #3b82f6;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .dashboard {
+      max-width: 600px;
+      margin: auto;
+      background-color: white;
+      border-radius: 20px;
+      margin-top: 30px;
+      padding: 20px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .section {
+      margin-bottom: 25px;
+    }
+    .section h3 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .btn {
+      display: inline-block;
+      background-color: #3b82f6;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 16px;
+      margin-top: 10px;
+      transition: background 0.3s;
+    }
+    .btn:hover {
+      background-color: #2563eb;
+    }
+    .info-line {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <header>Mon Compte</header>
+
+  <div class="dashboard">
+    <div class="section">
+      <h3>Bienvenue, <span id="userName">Utilisateur</span></h3>
+      <div class="info-line">Email : <span id="userEmail">email@exemple.com</span></div>
+      <div class="info-line">Téléphone : <span id="userPhone">000000000</span></div>
+      <div class="info-line">Type de compte : <span id="userType">Chauffeur</span></div>
+    </div>
+
+    <div class="section">
+      <h3>Actions Rapides</h3>
+      <a href="#" class="btn">Compléter mon profil</a>
+      <a href="#" class="btn">Envoyer un document</a>
+    </div>
+
+    <div class="section">
+      <h3>Historique</h3>
+      <p>Aucune donnée disponible pour l'instant.</p>
+    </div>
+  </div>
+
+  <script>
+    // Ces données sont fictives et peuvent être remplacées par des valeurs dynamiques
+    const userData = {
+      name: "Ali Ben Ahmed",
+      email: "ali@example.com",
+      phone: "0612345678",
+      type: "Chauffeur"
+    };
+
+    document.getElementById("userName").innerText = userData.name;
+    document.getElementById("userEmail").innerText = userData.email;
+    document.getElementById("userPhone").innerText = userData.phone;
+    document.getElementById("userType").innerText = userData.type;
+  </script>
+</body>
+</html>
