@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>مراجعة طلبات السائقين – Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-ENjdO4Dr2bkBIFxQpeoNTMN4tcO6XxD0IYd0r8i+Y7E3zuv7YtRfL15kB+0UJ0y"
+      crossorigin="anonymous"
+    />
+    <?!= include('Styles'); ?>
+  </head>
+  <body>
+    <!-- Navbar بسيط -->
+    <nav class="navbar navbar-light bg-light shadow-sm">
+      <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="?page=home">
+          <img src="https://i.imgur.com/6RAgZpW.png" width="30" height="30" class="me-2" alt="Logo" />
+          <span class="fw-bold">DocSwift Admin</span>
+        </a>
+      </div>
+    </nav>
+
+    <div class="container py-4">
+      <h4 class="mb-3 text-center">مراجعة طلبات تسجيل السائقين<br /><small class="text-muted">Driver Requests Review</small></h4>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>البريد الإلكتروني<br />(Email)</th>
+              <th>الاسم الكامل<br />(Full Name)</th>
+              <th>الهاتف<br />(Phone)</th>
+              <th>نوع الوثيقة<br />(ID Type)</th>
+              <th>الحالة<br />(Status)</th>
+              <th>الإجراءات<br />(Actions)</th>
+            </tr>
+          </thead>
+          <tbody id="driversTableBody">
+            <!-- سيُملأ ديناميكيًا -->
+          </tbody>
+        </table>
+      </div>
+      <!-- رسالة عند عدم وجود سائقين -->
+      <div id="noDriversMsg" class="alert alert-info text-center d-none">
+        لا توجد طلبات معلّقة حاليًا. / Pas de demandes en attente.
+      </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-qQ2d+JQGf2B4qlv3VO2TEngIuD+VKSQ7mQe5eH36F5GHSt/6mgxTzY2+v0hQz6Y"
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      // عند تحميل الصفحة، نستدعي getPendingDrivers من الخلفية
+      window.onload = function() {
+        google.script.run.withSuccessHandler(populateTable).getPendingDrivers();
+      };
+
+      function populateTable(drivers) {
+        const tbody = document.getElementById('driversTableBody');
+        const noMsg = document.getElementById('noDriversMsg');
+        tbody.innerHTML = '';
+        if (!drivers || drivers.length === 0) {
+          noMsg.classList.remove('d-none');
+          return;
+        }
+        noMsg.classList.add('d-none');
+        drivers.forEach(function(driver) {
+          const [rowIndex, email, fullName, phone, idType, status] = driver;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${email}</td>
+            <td>${fullName}</td>
+            <td>${phone}</td>
+            <td>${idType}</td>
+            <td><span class="badge bg-warning text-dark">${status}</span></td>
+            <td>
+              <button class="btn btn-sm btn-outline-success me-1" onclick="approveDriver(${rowIndex})">
+                موافقة / Approve
+              </button>
+              <button class="btn btn-sm btn-outline-danger" onclick="rejectDriver(${rowIndex})">
+                رفض / Reject
+              </button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      function approveDriver(rowIndex) {
+        google.script.run.withSuccessHandler(function(res) {
+          if (res === 'OK') {
+            window.location.reload();
+          } else {
+            alert('Error: ' + res);
+          }
+        }).setDriverStatus(rowIndex, 'Approved');
+      }
+
+      function rejectDriver(rowIndex) {
+        google.script.run.withSuccessHandler(function(res) {
+          if (res === 'OK') {
+            window.location.reload();
+          } else {
+            alert('Error: ' + res);
+          }
+        }).setDriverStatus(rowIndex, 'Rejected');
+      }
+    </script>
+  </body>
+</html>
